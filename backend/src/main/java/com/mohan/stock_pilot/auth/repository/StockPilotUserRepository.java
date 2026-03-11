@@ -8,4 +8,5 @@ import java.util.UUID;
 
 @Repository
 public interface StockPilotUserRepository extends JpaRepository<StockPilotUser, UUID> {
+    boolean existsByEmail(String email);
 }
