@@ -28,4 +28,15 @@ public class OtpServiceImpl implements IOtpService {
 
         emailService.sendOtpEmail(user.getEmail(), otp);
     }
+
+    public boolean verifyOtp(StockPilotUser user, String otp) {
+        String key="email_verification:"+user.getId();
+        String storedOtp=redisTemplate.opsForValue().get(key);
+
+        if(storedOtp==null || !storedOtp.equals(otp))  return false;
+
+        redisTemplate.delete(key);
+        return true;
+
+    }
 }

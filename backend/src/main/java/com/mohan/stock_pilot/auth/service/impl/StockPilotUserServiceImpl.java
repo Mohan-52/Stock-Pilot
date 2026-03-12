@@ -34,5 +34,22 @@ public class StockPilotUserServiceImpl implements IStockPilotUserService{
 
     }
 
+    @Override
+    public void verifyEmail(String email, String otp) {
+        StockPilotUser user=userRepository.findByEmail(email)
+                .orElseThrow(()-> new RuntimeException("User doesn't exists"));
+
+
+        boolean isValid= otpService.verifyOtp(user,otp);
+
+        if (!isValid) {
+            throw new RuntimeException("Invalid OTP");
+        }
+
+        user.setEmailVerified(true);
+        userRepository.save(user);
+
+    }
+
 
 }

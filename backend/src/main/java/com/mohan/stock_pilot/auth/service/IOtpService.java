@@ -4,4 +4,5 @@ import com.mohan.stock_pilot.auth.entity.StockPilotUser;
 
 public interface IOtpService {
     void generateAndSendOtp(StockPilotUser user);
+    boolean verifyOtp(StockPilotUser user, String otp);
 }

@@ -1,6 +1,7 @@
 package com.mohan.stock_pilot.auth.controller;
 
 import com.mohan.stock_pilot.auth.dto.RegisterRequestDto;
+import com.mohan.stock_pilot.auth.dto.VerifyEmailRequestDto;
 import com.mohan.stock_pilot.auth.service.IStockPilotUserService;
 import com.mohan.stock_pilot.common.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -23,5 +24,12 @@ public class StockPilotUserController {
         userService.registerUser(requestDto);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse("User registered successfully. Please verify your email."));
+    }
+
+    @PostMapping("/verify-otp")
+   public ResponseEntity<ApiResponse> verifyOtp(@RequestBody VerifyEmailRequestDto request){
+       userService.verifyEmail(request.email(), request.otp());
+
+       return ResponseEntity.ok(new ApiResponse("Email Successfully Verified"));
     }
 }
