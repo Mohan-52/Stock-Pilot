@@ -7,10 +7,7 @@ import com.mohan.stock_pilot.common.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -31,5 +28,13 @@ public class StockPilotUserController {
        userService.verifyEmail(request.email(), request.otp());
 
        return ResponseEntity.ok(new ApiResponse("Email Successfully Verified"));
+    }
+
+    @PostMapping("/re-send/otp")
+    public ResponseEntity<ApiResponse> resendOtp(@RequestParam("email") String email){
+        userService.resendOtp(email);
+
+        return  ResponseEntity.ok(new ApiResponse("OTP Successfully ReSent"));
+
     }
 }

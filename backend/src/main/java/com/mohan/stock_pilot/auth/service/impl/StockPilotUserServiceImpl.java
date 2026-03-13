@@ -51,5 +51,12 @@ public class StockPilotUserServiceImpl implements IStockPilotUserService{
 
     }
 
+    @Override
+    public void resendOtp(String email) {
+        StockPilotUser user=userRepository.findByEmail(email).orElseThrow();
+
+        otpService.generateAndSendOtp(user);
+    }
+
 
 }
