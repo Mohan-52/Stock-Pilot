@@ -30,3 +30,12 @@ spring:
           auth: true
           starttls:
             enable: true
+
+jwt:
+  secret:
+    access: ${ACCESS_SECRET}
+    refresh: ${REFRESH_SECRET}
+
+  expiration:
+    access: ${ACCESS_EXPIRATION}
+    refresh: ${REFRESH_EXPIRATION}

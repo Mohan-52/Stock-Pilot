@@ -1,0 +1,61 @@
+package com.mohan.stock_pilot.security;
+
+import com.mohan.stock_pilot.auth.entity.Roles;
+import com.mohan.stock_pilot.auth.entity.StockPilotUser;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
+import java.util.Date;
+
+@Component
+public class JwtUtil {
+
+    @Value("${jwt.secret.access}")
+    private String ACCESS_TOKEN_SECRET;
+
+    @Value("${jwt.secret.refresh}")
+    private String REFRESH_TOKEN_SECRET;
+
+    @Value("${jwt.expiration.access}")
+    private Long ACCESS_EXPIRATION;
+
+    @Value("${jwt.expiration.refresh}")
+    private Long REFRESH_EXPIRATION;
+
+
+    public Key getSigningKey(String secret){
+        return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+    }
+
+    public String generateAccessToken(StockPilotUser user){
+
+
+
+        return Jwts.builder()
+                .subject(user.getEmail())
+                .issuer("STOCK_PILOT")
+                .claim("fullName", user.getFullName())
+                .claim("roles", user.getRoles().stream().map(Roles::getName).toList())
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis()+ACCESS_EXPIRATION))
+                .signWith(getSigningKey(ACCESS_TOKEN_SECRET), SignatureAlgorithm.HS256)
+                .compact();
+
+    }
+    
+    public String generateRefreshToken(StockPilotUser user){
+
+        return Jwts.builder()
+                .issuer("STOCK_PILOT")
+                .subject(user.getEmail())
+                .signWith(getSigningKey(REFRESH_TOKEN_SECRET), SignatureAlgorithm.HS256)
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis()+REFRESH_EXPIRATION)).compact();
+    }
+
+}
