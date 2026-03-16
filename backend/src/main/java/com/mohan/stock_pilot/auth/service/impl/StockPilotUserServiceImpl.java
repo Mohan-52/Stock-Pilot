@@ -5,6 +5,9 @@ import com.mohan.stock_pilot.auth.entity.StockPilotUser;
 import com.mohan.stock_pilot.auth.repository.StockPilotUserRepository;
 import com.mohan.stock_pilot.auth.service.IOtpService;
 import com.mohan.stock_pilot.auth.service.IStockPilotUserService;
+import com.mohan.stock_pilot.common.exception.InvalidCredentialsEx;
+import com.mohan.stock_pilot.common.exception.ResourceAlreadyExistsEx;
+import com.mohan.stock_pilot.common.exception.ResourceNotFoundEx;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -20,7 +23,7 @@ public class StockPilotUserServiceImpl implements IStockPilotUserService{
     @Override
     public void registerUser(RegisterRequestDto requestDto) {
         if(userRepository.existsByEmail(requestDto.email())){
-            throw new RuntimeException("User Already Exists by email");
+            throw new ResourceAlreadyExistsEx("User Already Exists by email");
         }
 
         StockPilotUser user=new StockPilotUser();
@@ -37,13 +40,13 @@ public class StockPilotUserServiceImpl implements IStockPilotUserService{
     @Override
     public void verifyEmail(String email, String otp) {
         StockPilotUser user=userRepository.findByEmail(email)
-                .orElseThrow(()-> new RuntimeException("User doesn't exists"));
+                .orElseThrow(()-> new ResourceNotFoundEx("Email not registered in database. Please register your email to get otp"));
 
 
         boolean isValid= otpService.verifyOtp(user,otp);
 
         if (!isValid) {
-            throw new RuntimeException("Invalid OTP");
+            throw new InvalidCredentialsEx("Invalid OTP");
         }
 
         user.setEmailVerified(true);
@@ -53,7 +56,7 @@ public class StockPilotUserServiceImpl implements IStockPilotUserService{
 
     @Override
     public void resendOtp(String email) {
-        StockPilotUser user=userRepository.findByEmail(email).orElseThrow();
+        StockPilotUser user=userRepository.findByEmail(email).orElseThrow(()->new ResourceNotFoundEx("Email not registered in database. Please register your email to get otp"));
 
         otpService.generateAndSendOtp(user);
     }
