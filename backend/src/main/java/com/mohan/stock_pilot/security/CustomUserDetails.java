@@ -1,13 +1,11 @@
 package com.mohan.stock_pilot.security;
 
 import com.mohan.stock_pilot.auth.entity.StockPilotUser;
-import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.List;
 
 public class CustomUserDetails implements UserDetails {
     private final StockPilotUser user;
