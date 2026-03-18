@@ -22,21 +22,7 @@ public class StockPilotUserController {
     public ResponseEntity<ApiResponse> registerUser(@RequestBody RegisterRequestDto requestDto){
         userService.registerUser(requestDto);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse("User registered successfully. Please verify your email."));
-    }
-
-    @PostMapping("/verify-otp")
-   public ResponseEntity<ApiResponse> verifyOtp(@RequestBody VerifyEmailRequestDto request){
-       userService.verifyEmail(request.email(), request.otp());
-
-       return ResponseEntity.ok(new ApiResponse("Email Successfully Verified"));
-    }
-
-    @PostMapping("/resend-otp")
-    public ResponseEntity<ApiResponse> resendOtp(@RequestParam("email") String email){
-        userService.resendOtp(email);
-
-        return  ResponseEntity.ok(new ApiResponse("OTP Successfully ReSent"));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse("User registered successfully."));
     }
 
     @PostMapping("/login")

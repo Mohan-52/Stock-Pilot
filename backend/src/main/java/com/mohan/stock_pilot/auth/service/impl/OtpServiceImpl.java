@@ -12,6 +12,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -44,7 +45,7 @@ public class OtpServiceImpl implements IOtpService {
 
         if(storedOtp==null || !storedOtp.equals(otp))  return false;
 
-        redisTemplate.opsForValue().set("verified_email:"+email,"true",10);
+        redisTemplate.opsForValue().set("verified_email:"+email,"true",Duration.ofMinutes(10));
         redisTemplate.delete(key);
         return true;
 

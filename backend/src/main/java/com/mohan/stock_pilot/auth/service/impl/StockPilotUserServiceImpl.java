@@ -35,10 +35,9 @@ public class StockPilotUserServiceImpl implements IStockPilotUserService{
     @Override
     public void registerUser(RegisterRequestDto requestDto) {
 
-
         String val=redisTemplate.opsForValue().get("verified_email:"+requestDto.email());
 
-        if(!val.equals("true")){
+        if (!"true".equals(val)) {
             throw new InvalidCredentialsEx("Verify your otp to register");
         }
 
@@ -50,30 +49,6 @@ public class StockPilotUserServiceImpl implements IStockPilotUserService{
         StockPilotUser  stockPilotUser=userRepository.save(user);
 
 
-    }
-
-    @Override
-    public void verifyEmail(String email, String otp) {
-        StockPilotUser user=userRepository.findByEmail(email)
-                .orElseThrow(()-> new ResourceNotFoundEx("Email not registered in database. Please register your email to get otp"));
-
-
-        boolean isValid= otpService.verifyOtp(user,otp);
-
-        if (!isValid) {
-            throw new InvalidCredentialsEx("Invalid OTP");
-        }
-
-        user.setEmailVerified(true);
-        userRepository.save(user);
-
-    }
-
-    @Override
-    public void resendOtp(String email) {
-        StockPilotUser user=userRepository.findByEmail(email).orElseThrow(()->new ResourceNotFoundEx("Email not registered in database. Please register your email to get otp"));
-
-        otpService.generateAndSendOtp(user);
     }
 
     @Override

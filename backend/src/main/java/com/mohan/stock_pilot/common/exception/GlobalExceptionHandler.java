@@ -31,6 +31,12 @@ public class GlobalExceptionHandler {
     }
 
 
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponseDto> handleAnyRequest(Exception ex, HttpServletRequest request){
+        return buildErrorResponse(request.getRequestURI(),HttpStatus.INTERNAL_SERVER_ERROR,ex);
+    }
+
+
 
 
 }
