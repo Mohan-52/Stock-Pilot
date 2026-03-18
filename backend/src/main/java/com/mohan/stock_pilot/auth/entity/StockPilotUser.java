@@ -6,9 +6,6 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 @Data
@@ -27,14 +24,9 @@ public class StockPilotUser extends BaseEntity {
 
     private String profileImageUrl;
 
-    @ManyToMany
-    @JoinTable(
-            name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id")
-
-    )
-    private Set<Roles> roles=new HashSet<>();
+    @ManyToOne(fetch= FetchType.LAZY)
+    @JoinColumn(name = "role_id")
+    private Roles role;
 
     @Enumerated(EnumType.STRING)
     private AccountStatus accountStatus;

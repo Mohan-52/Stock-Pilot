@@ -4,10 +4,7 @@ import com.mohan.stock_pilot.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.apache.catalina.User;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -21,7 +18,4 @@ public class Roles extends BaseEntity {
     private String name;
 
     private String description;
-
-    @ManyToMany(mappedBy = "roles")
-    private Set<StockPilotUser> users=new HashSet<>();
 }

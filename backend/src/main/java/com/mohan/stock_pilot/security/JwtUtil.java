@@ -40,7 +40,7 @@ public class JwtUtil {
                 .subject(user.getEmail())
                 .issuer("STOCK_PILOT")
                 .claim("fullName", user.getFullName())
-                .claim("roles", user.getRoles().stream().map(Roles::getName).toList())
+                .claim("roles", user.getRole().getName())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis()+ACCESS_EXPIRATION))
                 .signWith(getSigningKey(ACCESS_TOKEN_SECRET), SignatureAlgorithm.HS256)
