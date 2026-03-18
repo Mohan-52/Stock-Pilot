@@ -14,6 +14,7 @@ import com.mohan.stock_pilot.common.exception.ResourceNotFoundEx;
 import com.mohan.stock_pilot.security.CustomUserDetails;
 import com.mohan.stock_pilot.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -29,11 +30,16 @@ public class StockPilotUserServiceImpl implements IStockPilotUserService{
     private final IOtpService otpService;
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
+    private final RedisTemplate<String,String> redisTemplate;
 
     @Override
     public void registerUser(RegisterRequestDto requestDto) {
-        if(userRepository.existsByEmail(requestDto.email())){
-            throw new ResourceAlreadyExistsEx("User Already Exists by email");
+
+
+        String val=redisTemplate.opsForValue().get("verified_email:"+requestDto.email());
+
+        if(!val.equals("true")){
+            throw new InvalidCredentialsEx("Verify your otp to register");
         }
 
         StockPilotUser user=new StockPilotUser();
@@ -43,7 +49,6 @@ public class StockPilotUserServiceImpl implements IStockPilotUserService{
 
         StockPilotUser  stockPilotUser=userRepository.save(user);
 
-        otpService.generateAndSendOtp(stockPilotUser);
 
     }
 
