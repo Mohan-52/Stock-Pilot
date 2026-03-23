@@ -4,7 +4,10 @@ import com.mohan.stock_pilot.auth.dto.LoginRequestDto;
 import com.mohan.stock_pilot.auth.dto.LoginResponseDto;
 import com.mohan.stock_pilot.auth.dto.LoginResultDto;
 import com.mohan.stock_pilot.auth.dto.RegisterRequestDto;
+import com.mohan.stock_pilot.auth.entity.Roles;
 import com.mohan.stock_pilot.auth.entity.StockPilotUser;
+import com.mohan.stock_pilot.auth.enums.RoleType;
+import com.mohan.stock_pilot.auth.repository.RolesRepository;
 import com.mohan.stock_pilot.auth.repository.StockPilotUserRepository;
 import com.mohan.stock_pilot.auth.service.IOtpService;
 import com.mohan.stock_pilot.auth.service.IStockPilotUserService;
@@ -21,6 +24,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.management.relation.Role;
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class StockPilotUserServiceImpl implements IStockPilotUserService{
@@ -31,11 +37,15 @@ public class StockPilotUserServiceImpl implements IStockPilotUserService{
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final RedisTemplate<String,String> redisTemplate;
+    private final RolesRepository rolesRepository;
 
     @Override
     public void registerUser(RegisterRequestDto requestDto) {
 
         String val=redisTemplate.opsForValue().get("verified_email:"+requestDto.email());
+        Roles roles=rolesRepository.findByName(RoleType.USER)
+                .orElseThrow(()-> new ResourceNotFoundEx("User Not found"));
+
 
         if (!"true".equals(val)) {
             throw new InvalidCredentialsEx("Verify your otp to register");
@@ -45,6 +55,7 @@ public class StockPilotUserServiceImpl implements IStockPilotUserService{
         user.setEmail(requestDto.email());
         user.setPassword(passwordEncoder.encode(requestDto.password()));
         user.setEmailVerified(false);
+        user.setRole(roles);
 
         StockPilotUser  stockPilotUser=userRepository.save(user);
 

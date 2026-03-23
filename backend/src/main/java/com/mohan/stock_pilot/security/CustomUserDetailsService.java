@@ -18,7 +18,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 
-        StockPilotUser user = repository.findByEmail(email)
+        StockPilotUser user = repository.findUserWithRole(email)
                 .orElseThrow(() -> new ResourceNotFoundEx("User doesn't exist with email " + email));
 
         return new CustomUserDetails(user);
