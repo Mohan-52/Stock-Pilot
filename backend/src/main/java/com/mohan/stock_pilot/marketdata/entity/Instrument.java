@@ -5,49 +5,56 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-@Data
-@EqualsAndHashCode(callSuper = true)
 @Table(
         name = "instruments",
-        uniqueConstraints = {
-                @UniqueConstraint(name = "uk_instrument_symbol_exchange", columnNames = {"symbol", "exchange"})
-        },
         indexes = {
                 @Index(name = "idx_instrument_symbol", columnList = "symbol"),
                 @Index(name = "idx_instrument_name", columnList = "name"),
                 @Index(name = "idx_instrument_exchange", columnList = "exchange"),
-                @Index(name = "idx_instrument_active", columnList = "active")
+                @Index(name = "idx_instrument_profile_enriched", columnList = "profile_enriched")
         }
 )
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Instrument extends BaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false, length = 30)
+    @Column(nullable = false, unique = true, length = 30)
     private String symbol; // TSLA, AAPL
 
     @Column(name = "display_symbol", nullable = false, length = 100)
-    private String displaySymbol; // NASDAQ NMS - GLOBAL MARKET:TSLA
+    private String displaySymbol; // TSLA
 
     @Column(nullable = false, length = 150)
     private String name; // Tesla Inc
 
     @Column(nullable = false, length = 100)
-    private String exchange; // NASDAQ NMS - GLOBAL MARKET
+    private String exchange; // US, NASDAQ, NYSE
 
-    @Column(nullable = false, length = 20)
-    private String type; // EQUITY
+    @Column(nullable = false, length = 50)
+    private String type; // Common Stock
 
-    // Region / classification
     @Column(nullable = false, length = 10)
     private String currency; // USD
+
+    @Column(length = 20)
+    private String mic; // XNAS, XNYS, OOTC
+
+    @Column(length = 50)
+    private String figi; // BBG000N9MNX3
+
+    @Column(length = 20)
+    private String isin; // optional
 
     @Column(length = 50)
     private String country; // US
@@ -55,7 +62,6 @@ public class Instrument extends BaseEntity {
     @Column(length = 120)
     private String industry; // Automobiles
 
-    // Company metadata
     @Column(name = "website_url", length = 500)
     private String websiteUrl;
 
@@ -65,10 +71,14 @@ public class Instrument extends BaseEntity {
     @Column(name = "ipo_date")
     private LocalDate ipoDate;
 
+    @Column(name = "profile_enriched", nullable = false)
+    @Builder.Default
+    private Boolean profileEnriched = false;
+
+    @Column(name = "profile_last_updated_at")
+    private LocalDateTime profileLastUpdatedAt;
 
     @Builder.Default
     @Column(nullable = false)
     private Boolean active = true;
-
-
 }

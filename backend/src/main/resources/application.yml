@@ -3,14 +3,17 @@ spring:
     name: stock-pilot
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/stock_pilot_db
-    username: postgres
-    password: King@2025
+    url: jdbc:postgresql://localhost:5433/stock_pilot?options=-c%20TimeZone=Asia/Kolkata
+    username: stock_user
+    password: stock_pass
 
   jpa:
     hibernate:
       ddl-auto: validate
+      jdbc:
+        time_zone: Asia/Kolkata
     show-sql: true
+
 
   data:
     redis:
