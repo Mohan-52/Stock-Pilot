@@ -11,7 +11,10 @@ spring:
     hibernate:
       ddl-auto: validate
       jdbc:
+        batch_size: 500
         time_zone: Asia/Kolkata
+      order_insert: true
+      order_update: true
     show-sql: true
 
 
@@ -47,3 +50,8 @@ jwt:
   expiration:
     access: ${ACCESS_EXPIRATION}
     refresh: ${REFRESH_EXPIRATION}
+
+finnhub:
+  base-url: https://finnhub.io/api/v1
+  api-key: ${FINNHUB_API_KEY}
+

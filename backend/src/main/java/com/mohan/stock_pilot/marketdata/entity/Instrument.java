@@ -78,6 +78,9 @@ public class Instrument extends BaseEntity {
     @Column(name = "profile_last_updated_at")
     private LocalDateTime profileLastUpdatedAt;
 
+    @Column(name = "description")
+    private String description;
+
     @Builder.Default
     @Column(nullable = false)
     private Boolean active = true;

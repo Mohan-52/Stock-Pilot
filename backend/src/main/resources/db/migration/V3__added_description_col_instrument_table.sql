@@ -1,0 +1,1 @@
+ALTER TABLE instruments ADD COLUMN description VARCHAR(256);
