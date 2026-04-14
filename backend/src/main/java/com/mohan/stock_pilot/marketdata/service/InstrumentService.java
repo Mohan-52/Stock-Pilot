@@ -7,6 +7,7 @@ import com.mohan.stock_pilot.marketdata.entity.Instrument;
 import com.mohan.stock_pilot.marketdata.repository.InstrumentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -50,9 +51,11 @@ public class InstrumentService {
            CompanyProfileDTO dto=finnhubClient.fetchProfile(instrument.getSymbol());
            mapAndSave(instrument, dto);
 
-       }catch (Exception ex){
-           ex.printStackTrace(); // or log.error(...)
+       } catch (HttpClientErrorException.Forbidden ex) {
+           mapAndSave(instrument, null);
 
+       }catch(Exception ex){
+           ex.printStackTrace();
        }
    }
 
