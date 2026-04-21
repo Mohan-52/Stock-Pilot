@@ -30,6 +30,11 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(request.getRequestURI(),HttpStatus.UNAUTHORIZED,ex);
     }
 
+    @ExceptionHandler(InsufficientBalanceEx.class)
+    public ResponseEntity<ErrorResponseDto> handleInsufficientBalanceEx(Exception ex, HttpServletRequest request){
+        return buildErrorResponse(request.getRequestURI(),HttpStatus.CONFLICT,ex);
+    }
+
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDto> handleAnyRequest(Exception ex, HttpServletRequest request){

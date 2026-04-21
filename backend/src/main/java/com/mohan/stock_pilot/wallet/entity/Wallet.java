@@ -23,7 +23,7 @@ public class Wallet extends BaseEntity {
     private UUID userId;
 
     @Column(nullable = false, precision = 19, scale = 4)
-    private BigDecimal balance;
+    private long balance;
 
     @Column(nullable = false, length = 10)
     private String currency;

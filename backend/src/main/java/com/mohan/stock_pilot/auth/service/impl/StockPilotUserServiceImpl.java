@@ -16,6 +16,7 @@ import com.mohan.stock_pilot.common.exception.ResourceAlreadyExistsEx;
 import com.mohan.stock_pilot.common.exception.ResourceNotFoundEx;
 import com.mohan.stock_pilot.security.CustomUserDetails;
 import com.mohan.stock_pilot.security.JwtUtil;
+import com.mohan.stock_pilot.wallet.service.IWalletService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -38,6 +39,7 @@ public class StockPilotUserServiceImpl implements IStockPilotUserService{
     private final JwtUtil jwtUtil;
     private final RedisTemplate<String,String> redisTemplate;
     private final RolesRepository rolesRepository;
+    private final IWalletService walletService;
 
     @Override
     public void registerUser(RegisterRequestDto requestDto) {
@@ -58,6 +60,8 @@ public class StockPilotUserServiceImpl implements IStockPilotUserService{
         user.setRole(roles);
 
         StockPilotUser  stockPilotUser=userRepository.save(user);
+
+        walletService.createWallet(stockPilotUser.getId());
 
 
     }

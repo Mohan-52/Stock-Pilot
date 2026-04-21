@@ -1,0 +1,17 @@
+-- V7__increase_audit_columns.sql
+
+ALTER TABLE wallet
+ALTER COLUMN created_by TYPE VARCHAR(50),
+ALTER COLUMN updated_by TYPE VARCHAR(50);
+
+ALTER TABLE wallet_transactions
+ALTER COLUMN created_by TYPE VARCHAR(50),
+ALTER COLUMN updated_by TYPE VARCHAR(50);
+
+ALTER TABLE roles
+ALTER COLUMN created_by TYPE VARCHAR(100),
+ALTER COLUMN updated_by TYPE VARCHAR(100);
+
+ALTER TABLE stock_pilot_user
+ALTER COLUMN created_by TYPE VARCHAR(100),
+ALTER COLUMN updated_by TYPE VARCHAR(100);
