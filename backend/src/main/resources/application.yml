@@ -55,3 +55,6 @@ finnhub:
   base-url: https://finnhub.io/api/v1
   api-key: ${FINNHUB_API_KEY}
 
+
+stripe:
+  secret-key: ${STRIPE_SECRET_KEY}
