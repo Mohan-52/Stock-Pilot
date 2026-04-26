@@ -12,7 +12,7 @@ public class ProfileEnrichmentScheduler {
 
     private final InstrumentService instrumentService;
 
-    @Scheduled(fixedDelay = 1000)
+    // @Scheduled(fixedDelay = 1000)
     public void enrichProfiles(){
         instrumentService.enrichNext();
     }
