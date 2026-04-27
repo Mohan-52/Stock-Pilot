@@ -3,7 +3,9 @@ package com.mohan.stock_pilot.marketdata.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mohan.stock_pilot.marketdata.dto.InstrumentCacheDto;
 import com.mohan.stock_pilot.marketdata.dto.SubscribeRequestDto;
+import com.mohan.stock_pilot.marketdata.entity.Instrument;
 import com.mohan.stock_pilot.marketdata.enums.MarketCategory;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -28,11 +31,12 @@ public class MarketDataService {
     
 
     private  WebSocket webSocket;
-    private List<String> symbols;
+    private List<Instrument> instruments;
 
     @PostConstruct
     public void init(){
-        this.symbols=popularService.getSymbolsByCategory(MarketCategory.TOP_50);
+        this.instruments=popularService.getInstrumentsByCategory(MarketCategory.TOP_50);
+        cacheInstruments();
         connect();
     }
 
@@ -49,13 +53,11 @@ public class MarketDataService {
         webSocket=client.newWebSocket(request, new WebSocketListener() {
             @Override
             public void onOpen(@NotNull WebSocket webSocket, @NotNull Response response) {
-                System.out.println("WebSocket connected");
-                symbols.forEach(s->subscribe(s));
+                instruments.forEach(i->subscribe(i.getSymbol()));
             }
 
             @Override
             public void onMessage(WebSocket webSocket, String text){
-                System.out.println("RAW TEXT "+text);
                 handleMessage(text);
             }
 
@@ -131,6 +133,33 @@ public class MarketDataService {
         }
 
         return rawSymbol;
+    }
+
+    public void cacheInstruments(){
+        for (Instrument inst: instruments){
+            try {
+                String key="instrument:"+inst.getSymbol();
+
+                InstrumentCacheDto dto = new InstrumentCacheDto(
+                        inst.getSymbol(),
+                        inst.getName(),
+                        inst.getExchange(),
+                        inst.getCurrency(),
+                        Optional.ofNullable(inst.getIndustry()).orElse(""),
+                        Optional.ofNullable(inst.getLogoUrl()).orElse(""),
+                        Optional.ofNullable(inst.getWebsiteUrl()).orElse("")
+
+                );
+
+
+                String json=objectMapper.writeValueAsString(dto);
+                redisTemplate.opsForValue().set(key,json);
+
+
+            }catch (Exception ex){
+                System.err.println("Failed to cache instrument: " + inst.getSymbol());
+            }
+        }
     }
 
 
