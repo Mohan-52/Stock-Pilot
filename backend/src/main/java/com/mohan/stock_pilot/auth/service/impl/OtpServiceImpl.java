@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class OtpServiceImpl implements IOtpService {
 
-    private final RedisTemplate<String, String> redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
     private final OtpGenerator otpGenerator;
     private final ApplicationEventPublisher eventPublisher;
     private final StockPilotUserRepository userRepository;
@@ -41,7 +41,7 @@ public class OtpServiceImpl implements IOtpService {
 
     public boolean verifyOtp(String email, String otp) {
         String key="email_verification:"+email;
-        String storedOtp=redisTemplate.opsForValue().get(key);
+        String storedOtp=(String) redisTemplate.opsForValue().get(key);
 
         if(storedOtp==null || !storedOtp.equals(otp))  return false;
 
