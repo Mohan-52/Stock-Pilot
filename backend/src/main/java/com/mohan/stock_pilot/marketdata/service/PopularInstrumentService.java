@@ -40,13 +40,11 @@ public class PopularInstrumentService {
                     String symbol = entry.getKey().toString();
 
                     try {
-                        // 🔹 Live data
                         JsonNode live = objectMapper.readTree(entry.getValue().toString());
 
                         double price = live.path("price").asDouble();
                         long timestamp = live.path("timestamp").asLong();
 
-                        // 🔹 Instrument data
                         Object value = redisTemplate.opsForValue()
                                 .get("instrument:" + symbol);
                         String instJson= value!=null?value.toString():null;
