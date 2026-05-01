@@ -3,6 +3,7 @@ package com.mohan.stock_pilot.marketdata.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mohan.stock_pilot.common.exception.ResourceNotFoundEx;
 import com.mohan.stock_pilot.marketdata.dto.InstrumentCacheDto;
 import com.mohan.stock_pilot.marketdata.dto.SubscribeRequestDto;
 import com.mohan.stock_pilot.marketdata.entity.Instrument;
@@ -23,7 +24,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class MarketDataService {
     private final PopularInstrumentService popularService;
-    private final RedisTemplate<String, String> redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
     private final ObjectMapper objectMapper;
 
     @Value("${finnhub.api-key}")
@@ -159,6 +160,26 @@ public class MarketDataService {
             }catch (Exception ex){
                 System.err.println("Failed to cache instrument: " + inst.getSymbol());
             }
+        }
+    }
+
+    public long getPriceInCents(String symbol){
+
+        try {
+            Object json= redisTemplate.opsForHash().get("popular:TOP_50", symbol);
+
+            if(json==null){
+                throw new ResourceNotFoundEx("Price not available for symbol: "+symbol);
+            }
+
+            JsonNode node=objectMapper.readTree(json.toString());
+
+            double price=node.get("price").asDouble();
+
+            return Math.round(price*100);
+
+        }catch (Exception ex){
+            throw new RuntimeException("Failed to fetch price for: "+symbol, ex);
         }
     }
 

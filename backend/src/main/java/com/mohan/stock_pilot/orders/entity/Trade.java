@@ -2,10 +2,7 @@ package com.mohan.stock_pilot.orders.entity;
 
 import com.mohan.stock_pilot.common.entity.BaseEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -15,6 +12,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Data
 @EqualsAndHashCode(callSuper = true)
+@Builder
 @Table(name = "trades", indexes = {
         @Index(name = "idx_trade_order", columnList = "orderId"),
         @Index(name = "idx_trade_user", columnList = "userId")

@@ -60,7 +60,7 @@ public class WalletServiceImpl implements IWalletService {
 
         WalletTransaction txn = WalletTransaction.builder()
                 .walletId(wallet.getId())
-                .amount(requestDto.amount())
+                .amount(requestDto.amount()*100)
                 .type(TransactionType.DEPOSIT)
                 .status(TransactionStatus.SUCCESS)
                 .referenceId(requestDto.paymentId())

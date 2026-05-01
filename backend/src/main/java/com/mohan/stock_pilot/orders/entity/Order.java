@@ -4,10 +4,7 @@ import com.mohan.stock_pilot.common.entity.BaseEntity;
 import com.mohan.stock_pilot.orders.enums.OrderStatus;
 import com.mohan.stock_pilot.orders.enums.OrderType;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.UUID;
 
@@ -16,6 +13,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
+@Builder
 @Table(name = "orders", indexes = {
         @Index(name = "idx_order_user", columnList = "userId"),
         @Index(name = "idx_order_symbol", columnList = "symbol")
