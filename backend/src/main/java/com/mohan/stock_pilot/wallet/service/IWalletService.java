@@ -14,4 +14,5 @@ public interface IWalletService {
     Wallet getWallet(UUID userId);
     void processPayment(PaymentRequestDto requestDto);
     void debitWallet(DebitRequestDto requestDto);
+    void creditWallet(UUID userId, long amount);
 }

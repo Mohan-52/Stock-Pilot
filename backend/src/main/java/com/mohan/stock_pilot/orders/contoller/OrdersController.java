@@ -2,6 +2,7 @@ package com.mohan.stock_pilot.orders.contoller;
 
 import com.mohan.stock_pilot.orders.dto.BuyOrderRequestDto;
 import com.mohan.stock_pilot.orders.dto.OrderResponseDto;
+import com.mohan.stock_pilot.orders.dto.SellOrderRequestDto;
 import com.mohan.stock_pilot.orders.service.OrderService;
 import com.mohan.stock_pilot.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
@@ -21,5 +22,10 @@ public class OrdersController {
     @PostMapping("/buy")
     public ResponseEntity<OrderResponseDto> buy(@RequestBody BuyOrderRequestDto req){
         return ResponseEntity.ok(orderService.placeBuyOrder(req));
+    }
+
+    @PostMapping("/sell")
+    public ResponseEntity<OrderResponseDto> sell(@RequestBody SellOrderRequestDto req){
+        return ResponseEntity.ok(orderService.placeSellOrder(req));
     }
 }

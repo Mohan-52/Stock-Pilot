@@ -1,5 +1,6 @@
 package com.mohan.stock_pilot.portfolio.service;
 
+import com.mohan.stock_pilot.common.exception.ResourceNotFoundEx;
 import com.mohan.stock_pilot.portfolio.entity.Position;
 import com.mohan.stock_pilot.portfolio.repository.PositionRepository;
 import jakarta.transaction.Transactional;
@@ -41,6 +42,21 @@ public class PositionService {
                     .build();
 
             positionRepo.save(pos);
+        }
+
+    }
+
+    public Position getPosition(UUID userId, String symbol){
+        return positionRepo.findByUserIdAndSymbol(userId,symbol)
+                .orElseThrow(()->new ResourceNotFoundEx("User doesn't have holding of "+symbol+ " stocks"));
+    }
+
+    @Transactional
+    public void removePosition(Position position){
+        if(position.getQuantity()==0){
+            positionRepo.delete(position);
+        }else{
+            positionRepo.save(position);
         }
 
     }

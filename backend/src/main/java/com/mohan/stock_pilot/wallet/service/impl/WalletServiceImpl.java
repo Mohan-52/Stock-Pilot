@@ -103,5 +103,14 @@ public class WalletServiceImpl implements IWalletService {
 
     }
 
+    @Override
+    @Transactional
+    public void creditWallet(UUID userId, long amount) {
+        Wallet wallet=walletRepo.findByUserIdForUpdate(userId)
+                .orElseThrow(()-> new ResourceNotFoundEx("Wallet Not found"));
+
+        wallet.setBalance(wallet.getBalance()+amount);
+    }
+
 
 }
