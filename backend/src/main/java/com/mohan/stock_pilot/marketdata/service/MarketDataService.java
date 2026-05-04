@@ -1,6 +1,7 @@
 package com.mohan.stock_pilot.marketdata.service;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mohan.stock_pilot.common.exception.ResourceNotFoundEx;
@@ -16,9 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -183,5 +182,34 @@ public class MarketDataService {
         }
     }
 
+    public Map<String, Long> getPrices(Set<String> symbols) {
 
+        List<String> symbolList = new ArrayList<>(symbols);
+
+        List<Object> data = redisTemplate.opsForHash()
+                .multiGet("popular:TOP_50", new ArrayList<>(symbolList));
+
+        Map<String, Long> result = new HashMap<>();
+
+        for (int i = 0; i < symbolList.size(); i++) {
+
+            String symbol = symbolList.get(i);
+            Object obj = data.get(i);
+
+            if (obj != null) {
+                try {
+                    String json = obj.toString();
+                    JsonNode node = objectMapper.readTree(json);
+
+                    long price = Math.round(node.get("price").asDouble() * 100);
+                    result.put(symbol, price);
+
+                } catch (JsonProcessingException e) {
+                    throw new RuntimeException("Error parsing price for " + symbol, e);
+                }
+            }
+        }
+
+        return result;
+    }
 }

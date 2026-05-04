@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 public class CustomUserDetails implements UserDetails {
     private final StockPilotUser user;
@@ -35,6 +36,9 @@ public class CustomUserDetails implements UserDetails {
         return user.getEmail();
     }
 
+    public UUID getUserId() {
+        return user.getId();
+    }
 
     @Override public boolean isAccountNonExpired() { return true; }
     @Override public boolean isAccountNonLocked() { return true; }

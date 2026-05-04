@@ -1,6 +1,8 @@
 package com.mohan.stock_pilot.portfolio.repository;
 
 import com.mohan.stock_pilot.portfolio.entity.Position;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -10,4 +12,5 @@ import java.util.UUID;
 public interface PositionRepository extends JpaRepository<Position, UUID> {
     Optional<Position> findByUserIdAndSymbol(UUID userId, String symbol);
     List<Position> findByUserId(UUID userId);
+    Page<Position> findByUserId(UUID userId, Pageable pageable);
 }
