@@ -2,13 +2,13 @@ package com.mohan.stock_pilot.portfolio.service;
 
 import com.mohan.stock_pilot.marketdata.service.MarketDataService;
 import com.mohan.stock_pilot.portfolio.dto.PortfolioPositionDto;
+import com.mohan.stock_pilot.portfolio.dto.PortfolioPositionsResponseDto;
 import com.mohan.stock_pilot.portfolio.dto.PortfolioResponseDto;
 import com.mohan.stock_pilot.portfolio.dto.PortfolioSummaryDto;
 import com.mohan.stock_pilot.portfolio.entity.Position;
 import com.mohan.stock_pilot.portfolio.repository.PositionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -71,6 +71,13 @@ public class PortfolioService {
 
         List<Position> positions = positionRepo.findByUserId(userId);
 
+        Set<String> symbols=positions.stream()
+                .map(Position::getSymbol)
+                .collect(Collectors.toSet());
+
+        Map<String, Long> priceMap = marketDataService.getPrices(symbols);
+
+
         long totalInvested = 0;
         long totalCurrentValue = 0;
 
@@ -79,7 +86,7 @@ public class PortfolioService {
             long qty = pos.getQuantity();
             long avgPrice = pos.getAvgPriceInCents();
 
-            long currentPrice = marketDataService.getPriceInCents(pos.getSymbol());
+            long currentPrice = priceMap.getOrDefault(pos.getSymbol(),0L);
 
             long invested = qty * avgPrice;
             long currentValue = qty * currentPrice;
@@ -101,14 +108,21 @@ public class PortfolioService {
         );
     }
 
-    public Page<PortfolioPositionDto> getPositions(UUID userId, Pageable pageable) {
+    public PortfolioPositionsResponseDto getPositions(UUID userId, Pageable pageable) {
 
         Page<Position> positionPage = positionRepo.findByUserId(userId, pageable);
 
         List<Position> positions = positionPage.getContent();
 
         if (positions.isEmpty()) {
-            return Page.empty(pageable);
+            return new PortfolioPositionsResponseDto(
+                    List.of(),
+                    positionPage.getNumber(),
+                    positionPage.getSize(),
+                    positionPage.getTotalElements(),
+                    positionPage.getTotalPages(),
+                    positionPage.isLast()
+            );
         }
 
         Set<String> symbols = positions.stream()
@@ -147,6 +161,11 @@ public class PortfolioService {
 
         }).toList();
 
-        return new PageImpl<>(dtoList, pageable, positionPage.getTotalElements());
+        return new PortfolioPositionsResponseDto(dtoList, positionPage.getNumber(),
+                positionPage.getSize(),
+                positionPage.getTotalElements(),
+                positionPage.getTotalPages(),
+                positionPage.isLast()
+        );
     }
 }

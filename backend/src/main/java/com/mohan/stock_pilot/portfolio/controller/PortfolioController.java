@@ -1,6 +1,7 @@
 package com.mohan.stock_pilot.portfolio.controller;
 
 import com.mohan.stock_pilot.portfolio.dto.PortfolioPositionDto;
+import com.mohan.stock_pilot.portfolio.dto.PortfolioPositionsResponseDto;
 import com.mohan.stock_pilot.portfolio.dto.PortfolioResponseDto;
 import com.mohan.stock_pilot.portfolio.dto.PortfolioSummaryDto;
 import com.mohan.stock_pilot.portfolio.service.PortfolioService;
@@ -35,7 +36,7 @@ public class PortfolioController {
     }
 
     @GetMapping("/positions")
-    public Page<PortfolioPositionDto> getPositions(
+    public PortfolioPositionsResponseDto getPositions(
             @AuthenticationPrincipal CustomUserDetails user,
             Pageable pageable
     ) {
