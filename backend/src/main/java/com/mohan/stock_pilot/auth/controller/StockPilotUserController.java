@@ -28,16 +28,17 @@ public class StockPilotUserController {
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto requestDto, HttpServletResponse response){
         LoginResultDto resultDto= userService.login(requestDto);
-        ResponseCookie cookie=ResponseCookie.from("refreshToken",resultDto.refreshToken())
+
+        ResponseCookie cookie = ResponseCookie.from("refreshToken", resultDto.refreshToken())
                 .httpOnly(true)
-                .secure(true)
-                .path("/auth/refresh")
-                .maxAge(15*24*60*60)
-                .sameSite("Strict")
+                .secure(false)
+                .sameSite("Lax")
+                .path("/")
+                .maxAge(15 * 24 * 60 * 60)
                 .build();
 
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
-        return ResponseEntity.ok(new LoginResponseDto(resultDto.userId(),resultDto.accessToken()));
+        return ResponseEntity.ok(new LoginResponseDto(resultDto.accessToken()));
     }
 }
