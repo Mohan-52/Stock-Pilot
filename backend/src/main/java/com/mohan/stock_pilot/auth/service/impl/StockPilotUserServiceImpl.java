@@ -1,11 +1,9 @@
 package com.mohan.stock_pilot.auth.service.impl;
 
-import com.mohan.stock_pilot.auth.dto.LoginRequestDto;
-import com.mohan.stock_pilot.auth.dto.LoginResponseDto;
-import com.mohan.stock_pilot.auth.dto.LoginResultDto;
-import com.mohan.stock_pilot.auth.dto.RegisterRequestDto;
+import com.mohan.stock_pilot.auth.dto.*;
 import com.mohan.stock_pilot.auth.entity.Roles;
 import com.mohan.stock_pilot.auth.entity.StockPilotUser;
+import com.mohan.stock_pilot.auth.enums.AccountStatus;
 import com.mohan.stock_pilot.auth.enums.RoleType;
 import com.mohan.stock_pilot.auth.repository.RolesRepository;
 import com.mohan.stock_pilot.auth.repository.StockPilotUserRepository;
@@ -14,6 +12,7 @@ import com.mohan.stock_pilot.auth.service.IStockPilotUserService;
 import com.mohan.stock_pilot.common.exception.InvalidCredentialsEx;
 import com.mohan.stock_pilot.common.exception.ResourceAlreadyExistsEx;
 import com.mohan.stock_pilot.common.exception.ResourceNotFoundEx;
+import com.mohan.stock_pilot.common.service.CloudinaryService;
 import com.mohan.stock_pilot.security.CustomUserDetails;
 import com.mohan.stock_pilot.security.JwtUtil;
 import com.mohan.stock_pilot.wallet.service.IWalletService;
@@ -27,6 +26,7 @@ import org.springframework.stereotype.Service;
 
 import javax.management.relation.Role;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -34,12 +34,12 @@ public class StockPilotUserServiceImpl implements IStockPilotUserService{
 
     private final StockPilotUserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final IOtpService otpService;
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final RedisTemplate<String,String> redisTemplate;
     private final RolesRepository rolesRepository;
     private final IWalletService walletService;
+    private final CloudinaryService cloudinaryService;
 
     @Override
     public void registerUser(RegisterRequestDto requestDto) {
@@ -56,7 +56,8 @@ public class StockPilotUserServiceImpl implements IStockPilotUserService{
         StockPilotUser user=new StockPilotUser();
         user.setEmail(requestDto.email());
         user.setPassword(passwordEncoder.encode(requestDto.password()));
-        user.setEmailVerified(false);
+        user.setEmailVerified(true);
+        user.setAccountStatus(AccountStatus.ACTIVE);
         user.setRole(roles);
 
         StockPilotUser  stockPilotUser=userRepository.save(user);
@@ -84,9 +85,26 @@ public class StockPilotUserServiceImpl implements IStockPilotUserService{
         String accessToken = jwtUtil.generateAccessToken(user);
         String refreshToken = jwtUtil.generateRefreshToken(user);
 
-        return new LoginResultDto(user.getId(), accessToken,refreshToken);
+        boolean profileCompleted = user.getFullName() != null;
 
 
+        return new LoginResultDto(accessToken,refreshToken, profileCompleted);
+
+
+    }
+
+    @Override
+    public void updateProfile(UUID userId, UpdateProfileRequestDto requestDto) {
+        StockPilotUser user=userRepository.findById(userId).orElseThrow();
+
+        user.setFullName(requestDto.fullName());
+
+        if(requestDto.profilePhoto()!=null && !requestDto.profilePhoto().isEmpty()){
+            String imageUrl= cloudinaryService.upload(requestDto.profilePhoto());
+            user.setProfileImageUrl(imageUrl);
+        }
+
+        userRepository.save(user);
     }
 
 

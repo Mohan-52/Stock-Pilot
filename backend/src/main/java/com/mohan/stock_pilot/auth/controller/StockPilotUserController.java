@@ -3,12 +3,11 @@ package com.mohan.stock_pilot.auth.controller;
 import com.mohan.stock_pilot.auth.dto.*;
 import com.mohan.stock_pilot.auth.service.IStockPilotUserService;
 import com.mohan.stock_pilot.common.dto.ApiResponse;
+import com.mohan.stock_pilot.security.CustomUserDetails;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseCookie;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -39,6 +38,14 @@ public class StockPilotUserController {
 
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
-        return ResponseEntity.ok(new LoginResponseDto(resultDto.accessToken()));
+        return ResponseEntity.ok(new LoginResponseDto(resultDto.accessToken(), resultDto.profileCompleted()));
+    }
+
+    @PutMapping(value = "/profile",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponse> updateProfile(@ModelAttribute UpdateProfileRequestDto requestDto, @AuthenticationPrincipal CustomUserDetails userDetails){
+         userService.updateProfile(userDetails.getUser().getId(), requestDto);
+
+         ApiResponse response=new ApiResponse("Profile Successfully Updated");
+         return ResponseEntity.ok(response);
     }
 }
