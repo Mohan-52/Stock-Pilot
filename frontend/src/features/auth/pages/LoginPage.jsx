@@ -81,15 +81,20 @@ const LoginPage = () => {
       if (response.data.accessToken) {
         setAccessToken(response.data.accessToken);
 
+        const nextPath =
+          response.data.profileCompleted === false
+            ? "/complete-profile"
+            : "/dashboard";
+
         setToast({
           message: "Login successful! Redirecting...",
           type: "success",
         });
 
-        // Redirect to dashboard after brief delay
+        // Redirect after brief delay so user sees confirmation
         setTimeout(() => {
-          navigate("/dashboard");
-        }, 1500);
+          navigate(nextPath);
+        }, 1000);
       } else {
         setErrors({ general: "Invalid login response. Please try again." });
       }

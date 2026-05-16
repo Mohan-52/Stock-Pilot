@@ -1,8 +1,6 @@
 import { useState } from "react";
 
 const PasswordStep = ({
-  name,
-  onNameChange,
   password,
   onPasswordChange,
   confirmPassword,
@@ -16,7 +14,7 @@ const PasswordStep = ({
 
   const isPasswordValid = password && password.length >= 6;
   const passwordsMatch = password === confirmPassword && password.length > 0;
-  const isFormValid = name && isPasswordValid && passwordsMatch;
+  const isFormValid = isPasswordValid && passwordsMatch;
 
   return (
     <div className="w-full">
@@ -26,22 +24,6 @@ const PasswordStep = ({
       <p className="text-gray-600 text-sm text-center mb-6">
         Set a strong password to secure your account
       </p>
-
-      <input
-        type="text"
-        placeholder="Full Name"
-        value={name}
-        onChange={(e) => onNameChange(e.target.value)}
-        disabled={isRegistering}
-        className={`w-full mb-4 p-3 border rounded-lg focus:outline-none focus:ring-2 ${
-          errors.name
-            ? "border-red-500 focus:ring-red-500"
-            : "border-gray-300 focus:ring-black"
-        } disabled:bg-gray-100`}
-      />
-      {errors.name && (
-        <p className="text-red-500 text-sm mb-2">{errors.name}</p>
-      )}
 
       <div className="relative mb-4">
         <input

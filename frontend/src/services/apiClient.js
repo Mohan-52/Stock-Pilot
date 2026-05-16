@@ -5,6 +5,7 @@ const ACCESS_TOKEN_KEY = "accessToken";
 
 export const setAccessToken = (token) => {
   localStorage.setItem(ACCESS_TOKEN_KEY, token);
+  window.dispatchEvent(new Event("authTokenChanged"));
 };
 
 export const getAccessToken = () => {
@@ -13,6 +14,7 @@ export const getAccessToken = () => {
 
 export const clearAuth = () => {
   localStorage.removeItem(ACCESS_TOKEN_KEY);
+  window.dispatchEvent(new Event("authTokenChanged"));
 };
 
 // Create axios instance

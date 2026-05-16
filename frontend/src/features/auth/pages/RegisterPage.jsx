@@ -10,7 +10,6 @@ const RegisterPage = () => {
   const [currentStep, setCurrentStep] = useState("email"); // email, otp, password
   const [email, setEmail] = useState("");
   const [verifiedEmail, setVerifiedEmail] = useState("");
-  const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
@@ -98,10 +97,6 @@ const RegisterPage = () => {
   const validatePasswordForm = () => {
     const errors = {};
 
-    if (!name.trim()) {
-      errors.name = "Full name is required";
-    }
-
     if (!password) {
       errors.password = "Password is required";
     } else if (password.length < 6) {
@@ -127,7 +122,6 @@ const RegisterPage = () => {
     try {
       await registerUser({
         email: verifiedEmail,
-        name: name.trim(),
         password,
       });
 
@@ -137,7 +131,6 @@ const RegisterPage = () => {
       setCurrentStep("email");
       setEmail("");
       setVerifiedEmail("");
-      setName("");
       setPassword("");
       setConfirmPassword("");
       setFormErrors({});
@@ -222,8 +215,6 @@ const RegisterPage = () => {
 
         {currentStep === "password" && (
           <PasswordStep
-            name={name}
-            onNameChange={setName}
             password={password}
             onPasswordChange={setPassword}
             confirmPassword={confirmPassword}
