@@ -1,6 +1,7 @@
 package com.mohan.stock_pilot.auth.controller;
 
 import com.mohan.stock_pilot.auth.dto.*;
+import com.mohan.stock_pilot.auth.entity.StockPilotUser;
 import com.mohan.stock_pilot.auth.service.IStockPilotUserService;
 import com.mohan.stock_pilot.common.dto.ApiResponse;
 import com.mohan.stock_pilot.security.CustomUserDetails;
@@ -11,20 +12,20 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class StockPilotUserController {
 
     private final IStockPilotUserService userService;
 
-    @PostMapping("/register")
+    @PostMapping("/auth/register")
     public ResponseEntity<ApiResponse> registerUser(@RequestBody RegisterRequestDto requestDto){
         userService.registerUser(requestDto);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse("User registered successfully."));
     }
 
-    @PostMapping("/login")
+    @PostMapping("/auth/login")
     public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto requestDto, HttpServletResponse response){
         LoginResultDto resultDto= userService.login(requestDto);
 
@@ -47,5 +48,18 @@ public class StockPilotUserController {
 
          ApiResponse response=new ApiResponse("Profile Successfully Updated");
          return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserProfileDto> getCurrentUser(@AuthenticationPrincipal CustomUserDetails userDetails){
+        StockPilotUser user=userDetails.getUser();
+        UserProfileDto response =
+                new UserProfileDto(
+                        user.getFullName(),
+                        user.getEmail(),
+                        user.getProfileImageUrl()
+                );
+
+        return ResponseEntity.ok(response);
     }
 }
