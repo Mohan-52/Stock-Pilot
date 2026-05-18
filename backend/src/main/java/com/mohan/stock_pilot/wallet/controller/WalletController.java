@@ -1,6 +1,7 @@
 package com.mohan.stock_pilot.wallet.controller;
 
 import com.mohan.stock_pilot.common.dto.ApiResponse;
+import com.mohan.stock_pilot.security.CustomUserDetails;
 import com.mohan.stock_pilot.wallet.dto.DebitRequestDto;
 import com.mohan.stock_pilot.wallet.dto.PaymentRequestDto;
 import com.mohan.stock_pilot.wallet.entity.Wallet;
@@ -8,6 +9,7 @@ import com.mohan.stock_pilot.wallet.service.IWalletService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -20,12 +22,14 @@ public class WalletController {
     private final IWalletService walletService;
 
     @PostMapping
-    public ApiResponse createWallet(@RequestParam("userId") UUID userId){
+    public ApiResponse createWallet(@AuthenticationPrincipal CustomUserDetails userDetails){
+        UUID userId=userDetails.getUser().getId();
         return walletService.createWallet(userId);
     }
 
     @GetMapping
-    public ResponseEntity<Wallet> getWallet(@RequestParam("userId") UUID userId){
+    public ResponseEntity<Wallet> getWallet(@AuthenticationPrincipal CustomUserDetails userDetails){
+        UUID userId=userDetails.getUser().getId();
         return ResponseEntity.status(HttpStatus.OK).body(walletService.getWallet(userId));
     }
 
