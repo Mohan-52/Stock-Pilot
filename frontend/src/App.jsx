@@ -1,11 +1,14 @@
 import AppRoutes from "./app/routes";
 import { UserProvider } from "./contexts/UserContext";
+import { ToastProvider } from "./components/ToastProvider";
 import "./App.css";
 
 function App() {
   return (
     <UserProvider>
-      <AppRoutes />
+      <ToastProvider>
+        <AppRoutes />
+      </ToastProvider>
     </UserProvider>
   );
 }

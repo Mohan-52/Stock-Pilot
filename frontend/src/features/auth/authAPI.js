@@ -18,7 +18,7 @@ export const verifyOTP = (email, otp) =>
 
 export const completeProfile = (formData) =>
   apiClient
-    .put("/auth/profile", formData, {
+    .put("/profile", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },

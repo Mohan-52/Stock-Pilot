@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { getAccessToken, clearAuth } from "../../auth/authService";
 import { useUser } from "../../../contexts/UserContext";
 import apiClient from "../../../services/apiClient";
@@ -61,6 +61,21 @@ const DashboardPage = () => {
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
           <div>
             <h1 className="text-2xl font-bold text-black">Stock Pilot</h1>
+          </div>
+
+          <div className="hidden sm:flex items-center gap-4">
+            <Link
+              to="/portfolio"
+              className="px-3 py-1 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100"
+            >
+              Portfolio
+            </Link>
+            <Link
+              to="/wallet"
+              className="px-3 py-1 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100"
+            >
+              Wallet
+            </Link>
           </div>
 
           <div className="relative">
