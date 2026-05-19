@@ -15,6 +15,8 @@ import com.mohan.stock_pilot.wallet.repository.WalletTransactionRepository;
 import com.mohan.stock_pilot.wallet.service.IWalletService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -110,6 +112,12 @@ public class WalletServiceImpl implements IWalletService {
                 .orElseThrow(()-> new ResourceNotFoundEx("Wallet Not found"));
 
         wallet.setBalance(wallet.getBalance()+amount);
+    }
+
+    @Override
+    public Page<WalletTransaction> getWalletTransaction(UUID userId, Pageable pageable){
+        Wallet wallet=getWallet(userId);
+       return txnRepo.findAllByWalletId(wallet.getId(),pageable);
     }
 
 

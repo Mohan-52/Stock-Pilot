@@ -69,6 +69,7 @@ public class JwtUtil {
         return extractClaimsFromAccessToken(token).getSubject();
     }
 
+
     public boolean isTokenValid(String token, UserDetails userDetails) {
         String email = extractEmail(token);
         return email.equals(userDetails.getUsername());

@@ -4,6 +4,9 @@ import com.mohan.stock_pilot.common.dto.ApiResponse;
 import com.mohan.stock_pilot.wallet.dto.DebitRequestDto;
 import com.mohan.stock_pilot.wallet.dto.PaymentRequestDto;
 import com.mohan.stock_pilot.wallet.entity.Wallet;
+import com.mohan.stock_pilot.wallet.entity.WalletTransaction;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -15,4 +18,5 @@ public interface IWalletService {
     void processPayment(PaymentRequestDto requestDto);
     void debitWallet(DebitRequestDto requestDto);
     void creditWallet(UUID userId, long amount);
+    Page<WalletTransaction> getWalletTransaction(UUID userId, Pageable pageable);
 }

@@ -17,6 +17,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/orders")
 @RequiredArgsConstructor
@@ -24,13 +26,16 @@ public class OrdersController {
     private final OrderService orderService;
 
     @PostMapping("/buy")
-    public ResponseEntity<OrderResponseDto> buy(@RequestBody BuyOrderRequestDto req){
-        return ResponseEntity.ok(orderService.placeBuyOrder(req));
+    public ResponseEntity<OrderResponseDto> buy(@AuthenticationPrincipal CustomUserDetails customUserDetails,@RequestBody BuyOrderRequestDto req){
+        UUID userId=customUserDetails.getUserId();
+        return ResponseEntity.ok(orderService.placeBuyOrder(userId,req));
     }
 
     @PostMapping("/sell")
-    public ResponseEntity<OrderResponseDto> sell(@RequestBody SellOrderRequestDto req){
-        return ResponseEntity.ok(orderService.placeSellOrder(req));
+    public ResponseEntity<OrderResponseDto> sell(@AuthenticationPrincipal CustomUserDetails customUserDetails, @RequestBody SellOrderRequestDto req){
+        UUID userId=customUserDetails.getUserId();
+
+        return ResponseEntity.ok(orderService.placeSellOrder(userId,req));
     }
 
     @GetMapping

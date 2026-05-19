@@ -33,9 +33,8 @@ public class OrderService {
     private final PositionService positionService;
 
     @Transactional
-    public OrderResponseDto placeBuyOrder(BuyOrderRequestDto request){
+    public OrderResponseDto placeBuyOrder(UUID userId,BuyOrderRequestDto request){
 
-        UUID userId = request.userId();
         String symbol = request.symbol().toUpperCase();
         long qty = request.quantity();
 
@@ -81,9 +80,8 @@ public class OrderService {
 
 
     @Transactional
-    public OrderResponseDto placeSellOrder(SellOrderRequestDto request){
+    public OrderResponseDto placeSellOrder(UUID userId,SellOrderRequestDto request){
 
-        UUID userId = request.userId();
         String symbol = request.symbol().toUpperCase();
         long qty = request.quantity();
 

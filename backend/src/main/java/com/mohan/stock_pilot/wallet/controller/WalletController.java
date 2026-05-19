@@ -5,8 +5,13 @@ import com.mohan.stock_pilot.security.CustomUserDetails;
 import com.mohan.stock_pilot.wallet.dto.DebitRequestDto;
 import com.mohan.stock_pilot.wallet.dto.PaymentRequestDto;
 import com.mohan.stock_pilot.wallet.entity.Wallet;
+import com.mohan.stock_pilot.wallet.entity.WalletTransaction;
 import com.mohan.stock_pilot.wallet.service.IWalletService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -43,6 +48,14 @@ public class WalletController {
     public ResponseEntity<ApiResponse> debit(@RequestBody DebitRequestDto requestDto){
         walletService.debitWallet(requestDto);
         return ResponseEntity.ok(new ApiResponse("Successfully debited"));
+    }
+
+    @GetMapping("/transactions")
+    public Page<WalletTransaction> getUserWalletTransaction(@AuthenticationPrincipal CustomUserDetails userDetails,@PageableDefault(
+            sort = "createdAt",
+            direction = Sort.Direction.DESC
+    ) Pageable pageable){
+       return walletService.getWalletTransaction(userDetails.getUserId(),pageable);
     }
 
 }

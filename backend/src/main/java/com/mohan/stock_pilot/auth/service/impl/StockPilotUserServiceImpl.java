@@ -7,10 +7,8 @@ import com.mohan.stock_pilot.auth.enums.AccountStatus;
 import com.mohan.stock_pilot.auth.enums.RoleType;
 import com.mohan.stock_pilot.auth.repository.RolesRepository;
 import com.mohan.stock_pilot.auth.repository.StockPilotUserRepository;
-import com.mohan.stock_pilot.auth.service.IOtpService;
 import com.mohan.stock_pilot.auth.service.IStockPilotUserService;
 import com.mohan.stock_pilot.common.exception.InvalidCredentialsEx;
-import com.mohan.stock_pilot.common.exception.ResourceAlreadyExistsEx;
 import com.mohan.stock_pilot.common.exception.ResourceNotFoundEx;
 import com.mohan.stock_pilot.common.service.CloudinaryService;
 import com.mohan.stock_pilot.security.CustomUserDetails;
@@ -24,8 +22,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.management.relation.Role;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
