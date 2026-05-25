@@ -28,7 +28,8 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .sessionManagement(sesion->sesion.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth->auth
-                        .requestMatchers("/api/auth/**", "/api/auth/registration/otp/**", "/api/stocks", "/api/payments/webhook").permitAll()
+                        .requestMatchers("/api/auth/**", "/api/auth/registration/otp/**", "/api/stocks", "/api/payments/webhook",                 "/ws-stock/**"
+                        ).permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(ex->{

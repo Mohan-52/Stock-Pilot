@@ -70,4 +70,8 @@ public class PopularInstrumentService {
                 })
                 .toList();
     }
+
+    public List<Instrument> geAllDistinctInstruments(){
+        return popInstrRepo.findDistinctPopularInstruments();
+    }
 }

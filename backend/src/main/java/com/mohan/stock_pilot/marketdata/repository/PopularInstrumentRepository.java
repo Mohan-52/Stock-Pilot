@@ -18,4 +18,9 @@ public interface PopularInstrumentRepository extends JpaRepository<PopularInstru
     ORDER BY pi.rank
 """)
     List<Instrument> findInstrumentsByCategory(MarketCategory category);
+
+    @Query("""
+            SELECT DISTINCT pi.instrument FROM PopularInstrument pi WHERE pi.active=true
+            """)
+    List<Instrument> findDistinctPopularInstruments();
 }

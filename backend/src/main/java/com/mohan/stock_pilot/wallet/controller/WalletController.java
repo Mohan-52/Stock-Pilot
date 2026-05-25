@@ -4,6 +4,7 @@ import com.mohan.stock_pilot.common.dto.ApiResponse;
 import com.mohan.stock_pilot.security.CustomUserDetails;
 import com.mohan.stock_pilot.wallet.dto.DebitRequestDto;
 import com.mohan.stock_pilot.wallet.dto.PaymentRequestDto;
+import com.mohan.stock_pilot.wallet.dto.WalletTxnResponseDto;
 import com.mohan.stock_pilot.wallet.entity.Wallet;
 import com.mohan.stock_pilot.wallet.entity.WalletTransaction;
 import com.mohan.stock_pilot.wallet.service.IWalletService;
@@ -51,7 +52,7 @@ public class WalletController {
     }
 
     @GetMapping("/transactions")
-    public Page<WalletTransaction> getUserWalletTransaction(@AuthenticationPrincipal CustomUserDetails userDetails,@PageableDefault(
+    public WalletTxnResponseDto getUserWalletTransaction(@AuthenticationPrincipal CustomUserDetails userDetails, @PageableDefault(
             sort = "createdAt",
             direction = Sort.Direction.DESC
     ) Pageable pageable){

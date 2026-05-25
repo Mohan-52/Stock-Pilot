@@ -6,6 +6,8 @@ import com.mohan.stock_pilot.common.exception.ResourceAlreadyExistsEx;
 import com.mohan.stock_pilot.common.exception.ResourceNotFoundEx;
 import com.mohan.stock_pilot.wallet.dto.DebitRequestDto;
 import com.mohan.stock_pilot.wallet.dto.PaymentRequestDto;
+import com.mohan.stock_pilot.wallet.dto.WalletTxnDto;
+import com.mohan.stock_pilot.wallet.dto.WalletTxnResponseDto;
 import com.mohan.stock_pilot.wallet.entity.Wallet;
 import com.mohan.stock_pilot.wallet.entity.WalletTransaction;
 import com.mohan.stock_pilot.wallet.enums.TransactionStatus;
@@ -19,6 +21,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -111,13 +114,37 @@ public class WalletServiceImpl implements IWalletService {
         Wallet wallet=walletRepo.findByUserIdForUpdate(userId)
                 .orElseThrow(()-> new ResourceNotFoundEx("Wallet Not found"));
 
+        WalletTransaction walletTransaction=WalletTransaction.builder()
+                .walletId(wallet.getId())
+                .amount(amount)
+                .type(TransactionType.SELL)
+                .status(TransactionStatus.SUCCESS)
+                .referenceId(UUID.randomUUID().toString())
+                .build();
+
+        txnRepo.save(walletTransaction);
+
         wallet.setBalance(wallet.getBalance()+amount);
     }
 
+    public WalletTxnDto mapToWalletTxnDto(WalletTransaction txn){
+        WalletTxnDto response=new WalletTxnDto(txn.getId(), txn.getType(), txn.getAmount(), txn.getReferenceId(), txn.getCreatedAt());
+        return response;
+    }
+
     @Override
-    public Page<WalletTransaction> getWalletTransaction(UUID userId, Pageable pageable){
+    public WalletTxnResponseDto getWalletTransaction(UUID userId, Pageable pageable){
         Wallet wallet=getWallet(userId);
-       return txnRepo.findAllByWalletId(wallet.getId(),pageable);
+       Page<WalletTransaction> page=txnRepo.findAllByWalletId(wallet.getId(),pageable);
+
+        List<WalletTxnDto> content=page.getContent().stream().map(this::mapToWalletTxnDto).toList();
+       WalletTxnResponseDto responseDto=new WalletTxnResponseDto(content,
+               page.getNumber(),
+               page.getSize(),
+               page.getTotalElements(),
+               page.getTotalPages(),
+               page.isLast());
+       return responseDto;
     }
 
 

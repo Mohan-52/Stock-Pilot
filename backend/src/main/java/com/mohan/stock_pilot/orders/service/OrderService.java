@@ -63,6 +63,7 @@ public class OrderService {
                         .userId(userId)
                         .symbol(symbol)
                         .quantity(qty)
+                        .type(OrderType.BUY)
                         .priceInCents(priceInCents)   // FIXED
                         .executedAt(Instant.now())
                         .build()
@@ -113,6 +114,7 @@ public class OrderService {
                         .userId(userId)
                         .priceInCents(priceInCents)
                         .quantity(qty)
+                        .type(OrderType.SELL)
                         .symbol(symbol)
                         .executedAt(Instant.now())
                         .build()

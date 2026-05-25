@@ -1,5 +1,7 @@
 package com.mohan.stock_pilot.orders.dto;
 
+import com.mohan.stock_pilot.orders.enums.OrderType;
+
 import java.time.Instant;
 import java.util.UUID;
 
@@ -9,5 +11,6 @@ public record TradeDto(
         String symbol,
         long quantity,
         long priceIncents,
+        OrderType type,
         Instant executed
 ) {}

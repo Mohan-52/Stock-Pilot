@@ -1,6 +1,7 @@
 package com.mohan.stock_pilot.orders.entity;
 
 import com.mohan.stock_pilot.common.entity.BaseEntity;
+import com.mohan.stock_pilot.orders.enums.OrderType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -37,6 +38,10 @@ public class Trade extends BaseEntity {
 
     @Column(nullable = false)
     private long priceInCents;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private OrderType type;
 
     private Instant executedAt;
 }

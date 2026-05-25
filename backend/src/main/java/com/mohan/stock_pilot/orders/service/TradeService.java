@@ -28,6 +28,7 @@ public class TradeService {
                         trade.getSymbol(),
                         trade.getQuantity(),
                         trade.getPriceInCents(),
+                        trade.getType(),
                         trade.getExecutedAt()
                 )).toList();
 

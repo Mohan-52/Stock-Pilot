@@ -6,9 +6,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mohan.stock_pilot.common.exception.ResourceNotFoundEx;
 import com.mohan.stock_pilot.marketdata.dto.InstrumentCacheDto;
+import com.mohan.stock_pilot.marketdata.dto.StockResponseDto;
 import com.mohan.stock_pilot.marketdata.dto.SubscribeRequestDto;
 import com.mohan.stock_pilot.marketdata.entity.Instrument;
 import com.mohan.stock_pilot.marketdata.enums.MarketCategory;
+import com.mohan.stock_pilot.marketdata.publisher.StockWebSocketPublisher;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import okhttp3.*;
@@ -26,6 +28,8 @@ public class MarketDataService {
     private final RedisTemplate<String, Object> redisTemplate;
     private final ObjectMapper objectMapper;
 
+    private final StockWebSocketPublisher socketPublisher;
+
     @Value("${finnhub.api-key}")
     private String API_KEY;
     
@@ -35,7 +39,7 @@ public class MarketDataService {
 
     @PostConstruct
     public void init(){
-        this.instruments=popularService.getInstrumentsByCategory(MarketCategory.TOP_50);
+        this.instruments=popularService.geAllDistinctInstruments();
         cacheInstruments();
         connect();
     }
@@ -108,7 +112,16 @@ public class MarketDataService {
                     String json=objectMapper.writeValueAsString(stock);
 
                     redisTemplate.opsForHash()
-                            .put("popular:TOP_50", symbol, json);
+                            .put("live:stocks", symbol, json);
+
+                    StockResponseDto dto =
+                            buildStockDto(symbol);
+
+                    socketPublisher.publishStockUpdate(
+                            MarketCategory.TOP_50,
+                            dto
+                    );
+
                 }
 
             }
@@ -211,5 +224,34 @@ public class MarketDataService {
         }
 
         return result;
+    }
+
+    private StockResponseDto buildStockDto(String symbol) throws Exception{
+        Object liveObj=
+                redisTemplate.opsForHash()
+                        .get("popular:TOP_50", symbol);
+        Object instObj=redisTemplate.opsForValue()
+                .get("instrument:"+symbol);
+
+        JsonNode live=
+                objectMapper.readTree(
+                        liveObj.toString()
+                );
+
+        JsonNode inst=objectMapper.readTree(
+                instObj.toString()
+        );
+
+        return new StockResponseDto(
+                symbol,
+                inst.path("name").asText(),
+                inst.path("exchange").asText(),
+                inst.path("currency").asText(),
+                inst.path("industry").asText(),
+                inst.path("logoUrl").asText(),
+                inst.path("websiteUrl").asText(),
+                live.path("price").asDouble(),
+                live.path("timestamp").asLong()
+        );
     }
 }
