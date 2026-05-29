@@ -15,9 +15,6 @@ public class StockWebSocketPublisher {
             MarketCategory category,
             StockResponseDto stock
     ){
-
-        System.out.println(stock.name()+" "+stock.price());
-
         messagingTemplate.convertAndSend(
                 "/topic/stocks"+category,
                 stock

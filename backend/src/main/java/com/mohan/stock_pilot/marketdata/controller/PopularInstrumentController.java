@@ -2,6 +2,7 @@ package com.mohan.stock_pilot.marketdata.controller;
 
 import com.mohan.stock_pilot.marketdata.dto.StockResponseDto;
 import com.mohan.stock_pilot.marketdata.enums.MarketCategory;
+import com.mohan.stock_pilot.marketdata.service.MarketDataService;
 import com.mohan.stock_pilot.marketdata.service.PopularInstrumentService;
 import lombok.RequiredArgsConstructor;
 
@@ -19,11 +20,13 @@ import java.util.List;
 public class PopularInstrumentController {
 
     private final PopularInstrumentService instrumentService;
+    private final MarketDataService marketDataService;
 
     @GetMapping
     public ResponseEntity<List<StockResponseDto>> getPopularStocks(
             @RequestParam(value = "category", defaultValue = "TOP_50") MarketCategory category) {
 
+        marketDataService.subscribeCategory(category);
         return ResponseEntity.ok(instrumentService.getStocks(category));
     }
 }

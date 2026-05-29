@@ -1,257 +1,291 @@
 package com.mohan.stock_pilot.marketdata.service;
 
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mohan.stock_pilot.common.exception.ResourceNotFoundEx;
+import com.mohan.stock_pilot.marketdata.client.FinnhubWebSocketClient;
 import com.mohan.stock_pilot.marketdata.dto.InstrumentCacheDto;
-import com.mohan.stock_pilot.marketdata.dto.StockResponseDto;
-import com.mohan.stock_pilot.marketdata.dto.SubscribeRequestDto;
 import com.mohan.stock_pilot.marketdata.entity.Instrument;
 import com.mohan.stock_pilot.marketdata.enums.MarketCategory;
-import com.mohan.stock_pilot.marketdata.publisher.StockWebSocketPublisher;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import okhttp3.*;
-import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @RequiredArgsConstructor
 public class MarketDataService {
-    private final PopularInstrumentService popularService;
-    private final RedisTemplate<String, Object> redisTemplate;
-    private final ObjectMapper objectMapper;
 
-    private final StockWebSocketPublisher socketPublisher;
+    private final PopularInstrumentService
+            popularService;
 
-    @Value("${finnhub.api-key}")
-    private String API_KEY;
-    
+    private final RedisTemplate<String, Object>
+            redisTemplate;
 
-    private  WebSocket webSocket;
-    private List<Instrument> instruments;
+    private final ObjectMapper
+            objectMapper;
+
+
+
+    private final FinnhubWebSocketClient
+            finnhubWebSocketClient;
+
+    private final Set<String>
+            subscribedSymbols =
+            ConcurrentHashMap.newKeySet();
 
     @PostConstruct
-    public void init(){
-        this.instruments=popularService.geAllDistinctInstruments();
+    public void init() {
+
         cacheInstruments();
-        connect();
+
+        finnhubWebSocketClient.connect();
+
+        subscribeCategory(
+                MarketCategory.TOP_50
+        );
+
     }
 
-    private void connect() {
-        OkHttpClient client= new OkHttpClient();
+    public void subscribeCategory(
+            MarketCategory category
+    ) {
 
-        String url="wss://ws.finnhub.io?token="+API_KEY;
+        List<Instrument> instruments =
+                popularService
+                        .getInstrumentsByCategory(
+                                category
+                        );
 
-        Request request=new Request.Builder()
-                .url(url)
-                .build();
+        instruments.forEach(inst -> {
 
+            subscribeIfNeeded(
+                    inst.getSymbol()
+            );
 
-        webSocket=client.newWebSocket(request, new WebSocketListener() {
-            @Override
-            public void onOpen(@NotNull WebSocket webSocket, @NotNull Response response) {
-                instruments.forEach(i->subscribe(i.getSymbol()));
-            }
-
-            @Override
-            public void onMessage(WebSocket webSocket, String text){
-                handleMessage(text);
-            }
-
-            @Override
-            public void onFailure(WebSocket webSocket, Throwable t, Response response) {
-                reconnect();
-            }
         });
+
     }
 
-    private void subscribe(String symbol) {
-        try {
-            SubscribeRequestDto payload = SubscribeRequestDto.subscribe(symbol);
-            String msg = objectMapper.writeValueAsString(payload);
+    public void subscribeIfNeeded(
+            String symbol
+    ) {
 
-            webSocket.send(msg);
+        if (
+                subscribedSymbols.add(symbol)
+        ) {
 
-        } catch (Exception e) {
-            System.err.println("Failed to subscribe: " + symbol);
-        }
-    }
+            finnhubWebSocketClient
+                    .subscribe(symbol);
 
-    private void handleMessage(String message) {
-        try{
-
-
-            JsonNode root=objectMapper.readTree(message);
-
-            if(!"trade".equals(root.path("type").asText())){
-                return;
-            }
-
-
-                if(root.has("data")){
-                for (JsonNode node: root.get("data")){
-                    String rawSymbol=node.get("s").asText();
-                    double price=node.get("p").asDouble();
-                    long timestamp=node.get("t").asLong();
-
-                    String symbol=normalizeSymbol(rawSymbol);
-
-                    Map<String, Object> stock=Map.of(
-                            "symbol", symbol,
-                            "price", price,
-                            "timestamp", timestamp
-                    );
-
-                    String json=objectMapper.writeValueAsString(stock);
-
-                    redisTemplate.opsForHash()
-                            .put("live:stocks", symbol, json);
-
-                    StockResponseDto dto =
-                            buildStockDto(symbol);
-
-                    socketPublisher.publishStockUpdate(
-                            MarketCategory.TOP_50,
-                            dto
-                    );
-
-                }
-
-            }
-
-        }catch (Exception ex){
-            ex.printStackTrace();
-        }
-    }
-
-    private void reconnect() {
-        try{
-            Thread.sleep(5000);
-            connect();
-        }catch (InterruptedException e){
-            Thread.currentThread().interrupt();
-        }
-    }
-
-    private String normalizeSymbol(String rawSymbol){
-        if(rawSymbol.contains(":")){
-            return rawSymbol.split(":")[1];
         }
 
-        return rawSymbol;
     }
 
-    public void cacheInstruments(){
-        for (Instrument inst: instruments){
+
+
+
+
+    public void cacheInstruments() {
+
+        List<Instrument> instruments =
+                popularService
+                        .geAllDistinctInstruments();
+
+        for (
+                Instrument inst :
+                instruments
+        ) {
+
             try {
-                String key="instrument:"+inst.getSymbol();
 
-                InstrumentCacheDto dto = new InstrumentCacheDto(
-                        inst.getSymbol(),
-                        inst.getName(),
-                        inst.getExchange(),
-                        inst.getCurrency(),
-                        Optional.ofNullable(inst.getIndustry()).orElse(""),
-                        Optional.ofNullable(inst.getLogoUrl()).orElse(""),
-                        Optional.ofNullable(inst.getWebsiteUrl()).orElse("")
+                InstrumentCacheDto dto =
+                        new InstrumentCacheDto(
 
+                                inst.getSymbol(),
+
+                                inst.getName(),
+
+                                inst.getExchange(),
+
+                                inst.getCurrency(),
+
+                                Optional.ofNullable(
+                                        inst.getIndustry()
+                                ).orElse(""),
+
+                                Optional.ofNullable(
+                                        inst.getLogoUrl()
+                                ).orElse(""),
+
+                                Optional.ofNullable(
+                                        inst.getWebsiteUrl()
+                                ).orElse("")
+
+                        );
+
+                redisTemplate
+                        .opsForHash()
+                        .put(
+
+                                "instrument:cache",
+
+                                inst.getSymbol(),
+
+                                objectMapper
+                                        .writeValueAsString(
+                                                dto
+                                        )
+
+                        );
+
+            } catch (Exception ex) {
+
+                System.out.println(
+                        "Failed cache: "
+                                + inst.getSymbol()
                 );
 
-
-                String json=objectMapper.writeValueAsString(dto);
-                redisTemplate.opsForValue().set(key,json);
-
-
-            }catch (Exception ex){
-                System.err.println("Failed to cache instrument: " + inst.getSymbol());
             }
+
         }
+
     }
 
-    public long getPriceInCents(String symbol){
+    public long getPriceInCents(
+            String symbol
+    ) {
 
         try {
-            Object json= redisTemplate.opsForHash().get("popular:TOP_50", symbol);
 
-            if(json==null){
-                throw new ResourceNotFoundEx("Price not available for symbol: "+symbol);
+            Object json =
+                    redisTemplate
+                            .opsForHash()
+                            .get(
+                                    "live:stocks",
+                                    symbol
+                            );
+
+            if (json == null) {
+
+                subscribeIfNeeded(symbol);
+
+                throw new ResourceNotFoundEx(
+                        "Price not available for symbol: "
+                                + symbol
+                );
+
             }
 
-            JsonNode node=objectMapper.readTree(json.toString());
+            JsonNode node =
+                    objectMapper.readTree(
+                            json.toString()
+                    );
 
-            double price=node.get("price").asDouble();
+            double price =
+                    node.get("price")
+                            .asDouble();
 
-            return Math.round(price*100);
+            return Math.round(
+                    price * 100
+            );
 
-        }catch (Exception ex){
-            throw new RuntimeException("Failed to fetch price for: "+symbol, ex);
+        } catch (Exception ex) {
+
+            throw new RuntimeException(
+                    "Failed to fetch price for: "
+                            + symbol,
+                    ex
+            );
+
         }
+
     }
 
-    public Map<String, Long> getPrices(Set<String> symbols) {
+    public Map<String, Long> getPrices(
+            Set<String> symbols
+    ) {
 
-        List<String> symbolList = new ArrayList<>(symbols);
+        symbols.forEach(
+                this::subscribeIfNeeded
+        );
 
-        List<Object> data = redisTemplate.opsForHash()
-                .multiGet("popular:TOP_50", new ArrayList<>(symbolList));
+        List<String> symbolList =
+                new ArrayList<>(symbols);
 
-        Map<String, Long> result = new HashMap<>();
+        List<Object> data =
+                redisTemplate
+                        .opsForHash()
+                        .multiGet(
+                                "live:stocks",
+                                new ArrayList<>(
+                                        symbolList
+                                )
+                        );
 
-        for (int i = 0; i < symbolList.size(); i++) {
+        Map<String, Long> result =
+                new HashMap<>();
 
-            String symbol = symbolList.get(i);
-            Object obj = data.get(i);
+        for (
+                int i = 0;
+                i < symbolList.size();
+                i++
+        ) {
+
+            String symbol =
+                    symbolList.get(i);
+
+            Object obj =
+                    data.get(i);
 
             if (obj != null) {
+
                 try {
-                    String json = obj.toString();
-                    JsonNode node = objectMapper.readTree(json);
 
-                    long price = Math.round(node.get("price").asDouble() * 100);
-                    result.put(symbol, price);
+                    JsonNode node =
+                            objectMapper.readTree(
+                                    obj.toString()
+                            );
 
-                } catch (JsonProcessingException e) {
-                    throw new RuntimeException("Error parsing price for " + symbol, e);
+                    long price =
+                            Math.round(
+
+                                    node.get("price")
+                                            .asDouble()
+
+                                            * 100
+
+                            );
+
+                    result.put(
+                            symbol,
+                            price
+                    );
+
+                } catch (
+                        JsonProcessingException e
+                ) {
+
+                    throw new RuntimeException(
+                            "Error parsing price for "
+                                    + symbol,
+                            e
+                    );
+
                 }
+
             }
+
         }
 
         return result;
+
     }
 
-    private StockResponseDto buildStockDto(String symbol) throws Exception{
-        Object liveObj=
-                redisTemplate.opsForHash()
-                        .get("popular:TOP_50", symbol);
-        Object instObj=redisTemplate.opsForValue()
-                .get("instrument:"+symbol);
 
-        JsonNode live=
-                objectMapper.readTree(
-                        liveObj.toString()
-                );
 
-        JsonNode inst=objectMapper.readTree(
-                instObj.toString()
-        );
-
-        return new StockResponseDto(
-                symbol,
-                inst.path("name").asText(),
-                inst.path("exchange").asText(),
-                inst.path("currency").asText(),
-                inst.path("industry").asText(),
-                inst.path("logoUrl").asText(),
-                inst.path("websiteUrl").asText(),
-                live.path("price").asDouble(),
-                live.path("timestamp").asLong()
-        );
-    }
 }
