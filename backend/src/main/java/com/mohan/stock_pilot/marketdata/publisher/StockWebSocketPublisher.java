@@ -16,7 +16,7 @@ public class StockWebSocketPublisher {
             StockResponseDto stock
     ){
         messagingTemplate.convertAndSend(
-                "/topic/stocks"+category,
+                "/topic/stocks/"+category,
                 stock
         );
     }
