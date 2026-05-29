@@ -2,9 +2,10 @@ import { formatCurrency, formatPercentage } from "../../../utils/formatters";
 
 const PositionTable = ({ positions, onSell }) => {
   return (
-    <div className="hidden min-w-full overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900 lg:block">
-      <table className="min-w-full divide-y divide-slate-200 text-left text-sm dark:divide-slate-700">
-        <thead className="bg-slate-50 text-slate-500 dark:bg-slate-950 dark:text-slate-400">
+    <div className="hidden overflow-hidden rounded-lg border border-white/10 bg-[#0b1728] lg:block">
+      <div className="overflow-x-auto">
+      <table className="min-w-[980px] w-full divide-y divide-white/10 text-left text-sm">
+        <thead className="bg-white/[0.04] text-slate-400">
           <tr>
             <th className="px-6 py-4 font-semibold">Symbol</th>
             <th className="px-6 py-4 font-semibold">Quantity</th>
@@ -16,37 +17,37 @@ const PositionTable = ({ positions, onSell }) => {
             <th className="px-6 py-4 font-semibold">Action</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
+        <tbody className="divide-y divide-white/10">
           {positions.map((position) => {
             const pnlPositive = position.pnl >= 0;
             return (
               <tr
                 key={position.symbol}
-                className="hover:bg-slate-50 dark:hover:bg-slate-800"
+                className="transition hover:bg-white/[0.04]"
               >
-                <td className="px-6 py-5 font-semibold text-slate-900 dark:text-white">
+                <td className="px-6 py-5 font-semibold text-white">
                   {position.symbol}
                 </td>
-                <td className="px-6 py-5 text-slate-600 dark:text-slate-300">
+                <td className="px-6 py-5 text-slate-300">
                   {position.quantity}
                 </td>
-                <td className="px-6 py-5 text-slate-600 dark:text-slate-300">
+                <td className="px-6 py-5 text-slate-300">
                   {formatCurrency(position.avgPriceInCents)}
                 </td>
-                <td className="px-6 py-5 text-slate-600 dark:text-slate-300">
+                <td className="px-6 py-5 text-slate-300">
                   {formatCurrency(position.currentPriceInCents)}
                 </td>
-                <td className="px-6 py-5 text-slate-600 dark:text-slate-300">
+                <td className="px-6 py-5 text-slate-300">
                   {formatCurrency(position.invested)}
                 </td>
-                <td className="px-6 py-5 text-slate-600 dark:text-slate-300">
+                <td className="px-6 py-5 text-slate-300">
                   {formatCurrency(position.currentValue)}
                 </td>
                 <td
                   className={`px-6 py-5 font-semibold ${pnlPositive ? "text-emerald-500" : "text-red-500"}`}
                 >
                   <div>{formatCurrency(position.pnl)}</div>
-                  <div className="text-xs text-slate-500 dark:text-slate-400">
+                  <div className="text-xs text-slate-500">
                     {formatPercentage(position.pnlPercentage)}
                   </div>
                 </td>
@@ -54,7 +55,7 @@ const PositionTable = ({ positions, onSell }) => {
                   <button
                     type="button"
                     onClick={() => onSell(position)}
-                    className="rounded-2xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
+                    className="rounded-lg bg-emerald-400 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-emerald-300"
                   >
                     Sell
                   </button>
@@ -64,6 +65,7 @@ const PositionTable = ({ positions, onSell }) => {
           })}
         </tbody>
       </table>
+      </div>
     </div>
   );
 };

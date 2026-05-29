@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useWallet } from "../hooks/useWallet";
 import SkeletonLoader from "./SkeletonLoader";
 
@@ -14,21 +13,21 @@ const WalletCard = ({ onAddMoney }) => {
   const { data, isLoading, error } = useWallet();
 
   return (
-    <div className="bg-white shadow-md rounded-lg p-6 w-full max-w-xl">
-      <div className="flex justify-between items-start">
+    <div className="w-full rounded-lg border border-white/10 bg-[#0b1728] p-6">
+      <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <div className="text-sm text-gray-500">Wallet</div>
-          <div className="mt-2 text-3xl font-semibold text-gray-900">
+          <div className="text-sm text-slate-400">Available balance</div>
+          <div className="mt-2 text-3xl font-semibold text-white">
             {isLoading ? (
               <SkeletonLoader className="h-8 w-40" />
             ) : error ? (
-              <div className="text-red-500">Failed to load</div>
+              <div className="text-red-300">Failed to load</div>
             ) : (
               <div>{formatCurrency(data.balance, data.currency)}</div>
             )}
           </div>
           {!isLoading && !error && (
-            <div className="mt-1 text-sm text-gray-500">
+            <div className="mt-1 text-sm text-slate-400">
               Currency: {data.currency}
             </div>
           )}
@@ -36,8 +35,9 @@ const WalletCard = ({ onAddMoney }) => {
 
         <div className="flex items-center space-x-2">
           <button
+            type="button"
             onClick={onAddMoney}
-            className="px-4 py-2 bg-black text-white rounded shadow"
+            className="min-h-11 rounded-lg bg-emerald-400 px-4 text-sm font-semibold text-slate-950 transition hover:bg-emerald-300"
           >
             Add Money
           </button>

@@ -12,3 +12,20 @@ export interface CreatePaymentRequest {
 export interface CreatePaymentResponse {
   clientSecret: string;
 }
+
+export interface WalletTransaction {
+  id: string;
+  type: "BUY" | "SELL";
+  amount: number;
+  referenceId: string;
+  createdAt: string;
+}
+
+export interface WalletTransactionsResponse {
+  content: WalletTransaction[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  last: boolean;
+}

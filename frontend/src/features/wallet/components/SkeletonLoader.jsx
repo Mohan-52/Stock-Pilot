@@ -1,7 +1,7 @@
 const SkeletonLoader = ({ className = "", style = {} }) => {
   return (
     <div
-      className={`animate-pulse bg-gray-200 rounded ${className}`}
+      className={`animate-pulse rounded bg-white/10 ${className}`}
       style={style}
     />
   );

@@ -5,6 +5,7 @@ import ProfileCompletionPage from "../features/auth/pages/ProfileCompletionPage"
 import DashboardPage from "../features/dashboard/pages/DashboardPage";
 import WalletPage from "../features/wallet/pages/WalletPage";
 import PortfolioPositionsPage from "../features/trading/pages/PortfolioPositionsPage";
+import StockDetailPage from "../features/trading/pages/StockDetailPage";
 
 const AppRoutes = () => {
   return (
@@ -17,6 +18,7 @@ const AppRoutes = () => {
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/wallet" element={<WalletPage />} />
         <Route path="/portfolio" element={<PortfolioPositionsPage />} />
+        <Route path="/stocks/:symbol" element={<StockDetailPage />} />
       </Routes>
     </BrowserRouter>
   );

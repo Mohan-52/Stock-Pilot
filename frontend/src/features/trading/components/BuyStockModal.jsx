@@ -2,22 +2,22 @@ import { useEffect, useState } from "react";
 import Modal from "../../../components/Modal";
 import { useToast } from "../../../components/ToastProvider";
 import { useBuyOrder } from "../hooks/useBuyOrder";
-import { formatCurrency } from "../../../utils/formatters";
 
-const BuyStockModal = ({ isOpen, onClose }) => {
+const BuyStockModal = ({ isOpen, onClose, initialSymbol = "" }) => {
   const [symbol, setSymbol] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [formError, setFormError] = useState("");
   const toast = useToast();
-  const { mutateAsync, isLoading } = useBuyOrder();
+  const { mutateAsync, isPending } = useBuyOrder();
 
   useEffect(() => {
     if (isOpen) {
-      setSymbol("");
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSymbol(initialSymbol);
       setQuantity(1);
       setFormError("");
     }
-  }, [isOpen]);
+  }, [isOpen, initialSymbol]);
 
   const validate = () => {
     if (!symbol.trim()) {
@@ -58,7 +58,7 @@ const BuyStockModal = ({ isOpen, onClose }) => {
         <div className="space-y-2">
           <label
             htmlFor="buy-symbol"
-            className="block text-sm font-semibold text-slate-900 dark:text-white"
+            className="block text-sm font-semibold text-white"
           >
             Stock symbol
           </label>
@@ -67,8 +67,8 @@ const BuyStockModal = ({ isOpen, onClose }) => {
             value={symbol}
             onChange={(event) => setSymbol(event.target.value)}
             placeholder="AAPL"
-            className="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-            disabled={isLoading}
+            className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition focus:border-emerald-300"
+            disabled={isPending}
           />
         </div>
 
@@ -76,11 +76,11 @@ const BuyStockModal = ({ isOpen, onClose }) => {
           <div className="flex items-center justify-between gap-4">
             <label
               htmlFor="buy-quantity"
-              className="block text-sm font-semibold text-slate-900 dark:text-white"
+              className="block text-sm font-semibold text-white"
             >
               Quantity
             </label>
-            <p className="text-sm text-slate-500 dark:text-slate-400">
+            <p className="text-sm text-slate-400">
               Market price is determined at order execution.
             </p>
           </div>
@@ -90,8 +90,8 @@ const BuyStockModal = ({ isOpen, onClose }) => {
             min="1"
             value={quantity}
             onChange={(event) => setQuantity(Number(event.target.value))}
-            className="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-            disabled={isLoading}
+            className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition focus:border-emerald-300"
+            disabled={isPending}
           />
         </div>
 
@@ -99,10 +99,10 @@ const BuyStockModal = ({ isOpen, onClose }) => {
 
         <button
           type="submit"
-          disabled={isLoading}
-          className="inline-flex w-full items-center justify-center rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
+          disabled={isPending}
+          className="inline-flex w-full items-center justify-center rounded-lg bg-emerald-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:bg-slate-600 disabled:text-slate-300"
         >
-          {isLoading ? "Placing order..." : "Place Buy Order"}
+          {isPending ? "Placing order..." : "Place Buy Order"}
         </button>
       </form>
     </Modal>

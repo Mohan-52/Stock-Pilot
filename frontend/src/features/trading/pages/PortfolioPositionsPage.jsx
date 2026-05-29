@@ -1,229 +1,183 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import BuyStockModal from "../components/BuyStockModal";
+import { RefreshCw } from "lucide-react";
 import SellStockModal from "../components/SellStockModal";
 import PositionTable from "../components/PositionTable";
 import PositionCard from "../components/PositionCard";
+import PortfolioTrades from "../components/PortfolioTrades";
+import TradingLayout from "../components/TradingLayout";
 import { usePortfolioPositions } from "../hooks/usePortfolioPositions";
+import { usePortfolioStats } from "../hooks/usePortfolioStats";
 import { formatCurrency } from "../../../utils/formatters";
+
+const StatTile = ({ label, value, loading, tone = "neutral" }) => {
+  const toneClass =
+    tone === "positive"
+      ? "text-emerald-300"
+      : tone === "negative"
+        ? "text-red-300"
+        : "text-white";
+
+  return (
+    <div className="rounded-lg border border-white/10 bg-white/[0.04] p-5">
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+        {label}
+      </p>
+      {loading ? (
+        <div className="mt-4 h-7 w-32 animate-pulse rounded bg-white/10" />
+      ) : (
+        <p className={`mt-3 text-2xl font-semibold ${toneClass}`}>{value}</p>
+      )}
+    </div>
+  );
+};
 
 const PortfolioPositionsPage = () => {
   const [page, setPage] = useState(0);
-  const [isBuyOpen, setIsBuyOpen] = useState(false);
   const [sellSelection, setSellSelection] = useState(null);
 
   const { data, isLoading, isError, error, refetch } =
     usePortfolioPositions(page);
+  const { data: statsData, isLoading: statsLoading } = usePortfolioStats();
+
   const positions = data?.content ?? [];
   const totalPages = data?.totalPages ?? 1;
+  const pnl = statsData?.totalPnl ?? 0;
 
-  const portfolioStats = useMemo(() => {
-    const invested = positions.reduce(
-      (sum, position) => sum + (position.invested ?? 0),
-      0,
-    );
-    const currentValue = positions.reduce(
-      (sum, position) => sum + (position.currentValue ?? 0),
-      0,
-    );
-    const pnl = positions.reduce(
-      (sum, position) => sum + (position.pnl ?? 0),
-      0,
-    );
-
-    return { invested, currentValue, pnl };
-  }, [positions]);
+  const actions = (
+    <>
+      <button
+        type="button"
+        onClick={() => refetch()}
+        className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-4 text-sm font-semibold text-slate-100 transition hover:bg-white/10"
+      >
+        <RefreshCw className="h-4 w-4" aria-hidden="true" />
+        Refresh
+      </button>
+      <Link
+        to="/dashboard"
+        className="inline-flex min-h-11 items-center rounded-lg bg-emerald-400 px-4 text-sm font-semibold text-slate-950 transition hover:bg-emerald-300"
+      >
+        Browse stocks
+      </Link>
+    </>
+  );
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
-      <div className="border-b border-slate-200 bg-white py-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6">
-          <div>
-            <p className="text-sm uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">
-              Portfolio
+    <TradingLayout
+      eyebrow="Portfolio"
+      title="Positions and trading history"
+      subtitle="Review holdings, monitor unrealized P/L, and manage simulated exits from one responsive workspace."
+      actions={actions}
+    >
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <StatTile
+          label="Invested"
+          value={formatCurrency(statsData?.totalInvested ?? 0)}
+          loading={statsLoading}
+        />
+        <StatTile
+          label="Current value"
+          value={formatCurrency(statsData?.totalCurrentValue ?? 0)}
+          loading={statsLoading}
+        />
+        <StatTile
+          label="Unrealized P/L"
+          value={`${formatCurrency(pnl)} (${(statsData?.pnlPercentage ?? 0).toFixed(2)}%)`}
+          loading={statsLoading}
+          tone={pnl >= 0 ? "positive" : "negative"}
+        />
+        <div className="rounded-lg border border-white/10 bg-white/[0.04] p-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+            Page
+          </p>
+          <div className="mt-3 flex items-center justify-between gap-3">
+            <p className="text-2xl font-semibold text-white">
+              {page + 1} / {totalPages}
             </p>
-            <h1 className="mt-2 text-3xl font-semibold text-slate-900 dark:text-white">
-              Your positions
-            </h1>
-            <p className="mt-2 max-w-2xl text-sm text-slate-600 dark:text-slate-400">
-              Track holdings, manage orders, and keep your portfolio aligned
-              with the market.
-            </p>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                disabled={page <= 0}
+                onClick={() => setPage((current) => Math.max(current - 1, 0))}
+                className="rounded-lg border border-white/10 px-3 py-2 text-sm font-semibold text-slate-200 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Prev
+              </button>
+              <button
+                type="button"
+                disabled={page >= totalPages - 1}
+                onClick={() =>
+                  setPage((current) => Math.min(current + 1, totalPages - 1))
+                }
+                className="rounded-lg border border-white/10 px-3 py-2 text-sm font-semibold text-slate-200 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Next
+              </button>
+            </div>
           </div>
+        </div>
+      </section>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <button
-              type="button"
-              onClick={() => setIsBuyOpen(true)}
-              className="rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
-            >
-              Buy stocks
-            </button>
+      <section className="mt-6">
+        {isLoading ? (
+          <div className="grid gap-4 md:grid-cols-2">
+            {[...Array(4)].map((_, index) => (
+              <div
+                key={index}
+                className="h-32 animate-pulse rounded-lg bg-white/[0.06]"
+              />
+            ))}
+          </div>
+        ) : isError ? (
+          <div className="rounded-lg border border-red-400/30 bg-red-500/10 p-6 text-red-100">
+            <h3 className="text-lg font-semibold">Unable to load positions</h3>
+            <p className="mt-2 text-sm">
+              {error?.message ?? "Please try again in a moment."}
+            </p>
             <button
               type="button"
               onClick={() => refetch()}
-              className="rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-900 transition hover:border-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+              className="mt-5 rounded-lg bg-red-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-red-400"
             >
-              Refresh
+              Retry
             </button>
-            <Link
-              to="/dashboard"
-              className="rounded-2xl bg-slate-100 px-5 py-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-200 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
-            >
-              Back to dashboard
-            </Link>
           </div>
-        </div>
-      </div>
-
-      <main className="mx-auto max-w-7xl px-6 py-10">
-        <section className="grid gap-4 xl:grid-cols-[1.6fr_1fr]">
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <p className="text-sm text-slate-500 dark:text-slate-400">
-                  Portfolio summary
-                </p>
-                <h2 className="mt-2 text-2xl font-semibold text-slate-900 dark:text-white">
-                  Position health
-                </h2>
-              </div>
-              <div className="grid gap-3 sm:grid-cols-3">
-                <div className="rounded-3xl bg-slate-50 p-4 dark:bg-slate-950">
-                  <p className="text-xs uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">
-                    Invested
-                  </p>
-                  <p className="mt-3 text-xl font-semibold text-slate-900 dark:text-white">
-                    {formatCurrency(portfolioStats.invested)}
-                  </p>
-                </div>
-                <div className="rounded-3xl bg-slate-50 p-4 dark:bg-slate-950">
-                  <p className="text-xs uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">
-                    Current value
-                  </p>
-                  <p className="mt-3 text-xl font-semibold text-slate-900 dark:text-white">
-                    {formatCurrency(portfolioStats.currentValue)}
-                  </p>
-                </div>
-                <div
-                  className={`rounded-3xl p-4 ${portfolioStats.pnl >= 0 ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"} dark:bg-slate-950`}
-                >
-                  <p className="text-xs uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">
-                    Unrealized P/L
-                  </p>
-                  <p className="mt-3 text-xl font-semibold">
-                    {formatCurrency(portfolioStats.pnl)}
-                  </p>
-                </div>
-              </div>
-            </div>
+        ) : positions.length === 0 ? (
+          <div className="rounded-lg border border-white/10 bg-white/[0.04] p-8 text-center">
+            <p className="text-sm text-slate-400">No holdings yet</p>
+            <h2 className="mt-3 text-2xl font-semibold text-white">
+              Your portfolio is empty
+            </h2>
+            <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-slate-400">
+              Buy a stock from the market watchlist and your open positions will
+              appear here with performance and sell actions.
+            </p>
           </div>
-
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <p className="text-sm text-slate-500 dark:text-slate-400">
-                  Page
-                </p>
-                <h2 className="mt-2 text-2xl font-semibold text-slate-900 dark:text-white">
-                  {page + 1} of {totalPages}
-                </h2>
-              </div>
-              <div className="flex gap-3">
-                <button
-                  type="button"
-                  disabled={page <= 0}
-                  onClick={() => setPage((current) => Math.max(current - 1, 0))}
-                  className="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm transition hover:border-slate-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950"
-                >
-                  Prev
-                </button>
-                <button
-                  type="button"
-                  disabled={page >= totalPages - 1}
-                  onClick={() =>
-                    setPage((current) => Math.min(current + 1, totalPages - 1))
-                  }
-                  className="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm transition hover:border-slate-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950"
-                >
-                  Next
-                </button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="mt-8">
-          {isLoading ? (
-            <div className="space-y-4">
-              {[...Array(4)].map((_, index) => (
-                <div
-                  key={index}
-                  className="h-28 animate-pulse rounded-3xl bg-slate-200 dark:bg-slate-800"
+        ) : (
+          <div className="space-y-4">
+            <PositionTable positions={positions} onSell={setSellSelection} />
+            <div className="grid gap-4 lg:hidden">
+              {positions.map((position) => (
+                <PositionCard
+                  key={position.symbol}
+                  position={position}
+                  onSell={setSellSelection}
                 />
               ))}
             </div>
-          ) : isError ? (
-            <div className="rounded-3xl border border-red-200 bg-red-50 p-8 text-slate-900 dark:border-red-700 dark:bg-red-950 dark:text-white">
-              <h3 className="text-xl font-semibold">
-                Unable to load positions
-              </h3>
-              <p className="mt-2 text-sm text-slate-700 dark:text-slate-300">
-                {error?.message ?? "Please try again in a moment."}
-              </p>
-              <button
-                type="button"
-                onClick={() => refetch()}
-                className="mt-5 rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
-              >
-                Retry
-              </button>
-            </div>
-          ) : positions.length === 0 ? (
-            <div className="rounded-3xl border border-slate-200 bg-white p-10 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
-              <p className="text-sm text-slate-500 dark:text-slate-400">
-                No holdings yet
-              </p>
-              <h2 className="mt-4 text-3xl font-semibold text-slate-900 dark:text-white">
-                Your portfolio is empty
-              </h2>
-              <p className="mt-3 max-w-xl mx-auto text-sm text-slate-600 dark:text-slate-400">
-                Start building your portfolio by buying stocks. Your positions
-                will appear here with performance, P/L, and available sell
-                actions.
-              </p>
-              <button
-                type="button"
-                onClick={() => setIsBuyOpen(true)}
-                className="mt-6 rounded-2xl bg-slate-900 px-6 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
-              >
-                Buy your first stock
-              </button>
-            </div>
-          ) : (
-            <div className="space-y-6">
-              <PositionTable positions={positions} onSell={setSellSelection} />
-              <div className="grid gap-4 sm:grid-cols-2">
-                {positions.map((position) => (
-                  <PositionCard
-                    key={position.symbol}
-                    position={position}
-                    onSell={setSellSelection}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-        </section>
-      </main>
+          </div>
+        )}
+      </section>
 
-      <BuyStockModal isOpen={isBuyOpen} onClose={() => setIsBuyOpen(false)} />
+      <PortfolioTrades />
+
       <SellStockModal
         isOpen={Boolean(sellSelection)}
         onClose={() => setSellSelection(null)}
         position={sellSelection}
       />
-    </div>
+    </TradingLayout>
   );
 };
 

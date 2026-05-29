@@ -11,6 +11,11 @@ const extractErrorMessage = (error) => {
   );
 };
 
+export const fetchPortfolioStats = async () => {
+  const response = await apiClient.get("/portfolio/summary");
+  return response.data;
+};
+
 export const fetchPositions = async ({
   page = 0,
   size = DEFAULT_PAGE_SIZE,
@@ -18,6 +23,14 @@ export const fetchPositions = async ({
   const response = await apiClient.get(
     `/portfolio/positions?page=${page}&size=${size}`,
   );
+  return response.data;
+};
+
+export const fetchPortfolioTrades = async ({
+  page = 0,
+  size = DEFAULT_PAGE_SIZE,
+} = {}) => {
+  const response = await apiClient.get(`/trades?page=${page}&size=${size}`);
   return response.data;
 };
 
