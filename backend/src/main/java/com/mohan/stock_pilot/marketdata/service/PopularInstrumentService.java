@@ -6,12 +6,12 @@ import com.mohan.stock_pilot.marketdata.dto.StockResponseDto;
 import com.mohan.stock_pilot.marketdata.entity.Instrument;
 import com.mohan.stock_pilot.marketdata.enums.MarketCategory;
 import com.mohan.stock_pilot.marketdata.repository.PopularInstrumentRepository;
+import com.mohan.stock_pilot.watchlist.repository.WatchlistRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +19,7 @@ public class PopularInstrumentService {
     private final PopularInstrumentRepository popInstrRepo;
     private final RedisTemplate<String, Object> redisTemplate;
     private final ObjectMapper objectMapper;
+    private final WatchlistRepository watchlistRepo;
 
     public List<Instrument> getInstrumentsByCategory(MarketCategory category){
         if (category == null) {
@@ -29,7 +30,8 @@ public class PopularInstrumentService {
     }
 
     public List<StockResponseDto> getStocks(
-            MarketCategory category
+            MarketCategory category,
+            UUID userId
     ) {
 
         List<Instrument> instruments =
@@ -37,6 +39,9 @@ public class PopularInstrumentService {
                         .findInstrumentsByCategory(
                                 category
                         );
+
+        List<String> watchlistSymbols =watchlistRepo.findSymbolsByUserId(userId);
+        Set<String> watchlistSet=new HashSet<>(watchlistSymbols);
 
         List<String> symbols =
                 instruments.stream()
@@ -113,7 +118,8 @@ public class PopularInstrumentService {
                                         .asDouble(),
 
                                 live.path("timestamp")
-                                        .asLong()
+                                        .asLong(),
+                                watchlistSet.contains(symbols.get(i))
 
                         )
 

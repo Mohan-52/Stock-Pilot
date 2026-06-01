@@ -9,8 +9,8 @@ public record StockResponseDto(
         String industry,
         String logoUrl,
         String websiteUrl,
-
         double price,
-        long timestamp
+        long timestamp,
+        boolean watchlisted
 
 ) {}

@@ -4,9 +4,12 @@ import com.mohan.stock_pilot.marketdata.dto.StockResponseDto;
 import com.mohan.stock_pilot.marketdata.enums.MarketCategory;
 import com.mohan.stock_pilot.marketdata.service.MarketDataService;
 import com.mohan.stock_pilot.marketdata.service.PopularInstrumentService;
+import com.mohan.stock_pilot.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.CachingUserDetailsService;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,9 +27,7 @@ public class PopularInstrumentController {
 
     @GetMapping
     public ResponseEntity<List<StockResponseDto>> getPopularStocks(
-            @RequestParam(value = "category", defaultValue = "TOP_50") MarketCategory category) {
-
-        marketDataService.subscribeCategory(category);
-        return ResponseEntity.ok(instrumentService.getStocks(category));
+            @RequestParam(value = "category", defaultValue = "TOP_50") MarketCategory category, @AuthenticationPrincipal CustomUserDetails userDetails) {
+            return ResponseEntity.ok(instrumentService.getStocks(category, userDetails.getUserId()));
     }
 }

@@ -311,7 +311,8 @@ public class FinnhubWebSocketClient {
                         .asDouble(),
 
                 live.path("timestamp")
-                        .asLong()
+                        .asLong(),
+                false
 
         );
 

@@ -9,4 +9,5 @@ import java.util.UUID;
 @Repository
 public interface InstrumentRepository extends JpaRepository<Instrument, UUID> {
     Optional<Instrument> findTopByProfileEnrichedFalseAndActiveTrue();
+    Optional<Instrument> findBySymbol(String symbol);
 }
