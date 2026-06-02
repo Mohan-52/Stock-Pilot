@@ -1,0 +1,5 @@
+ALTER TABLE sips DROP COLUMN symbol;
+
+ALTER TABLE sips ADD COLUMN instrument_id UUID  NOT NULL;
+
+

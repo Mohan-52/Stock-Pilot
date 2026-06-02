@@ -2,6 +2,7 @@ package com.mohan.stock_pilot.marketdata.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mohan.stock_pilot.marketdata.dto.StockPriceUpdateDto;
 import com.mohan.stock_pilot.marketdata.dto.StockResponseDto;
 import com.mohan.stock_pilot.marketdata.dto.SubscribeRequestDto;
 import com.mohan.stock_pilot.marketdata.enums.MarketCategory;
@@ -204,8 +205,8 @@ public class FinnhubWebSocketClient {
                                     json
                             );
 
-                    StockResponseDto dto =
-                            buildStockDto(symbol);
+                    StockPriceUpdateDto dto =
+                            buildPriceUpdateDto(symbol);
 
                     socketPublisher
                             .publishStockUpdate(
@@ -243,7 +244,7 @@ public class FinnhubWebSocketClient {
 
     }
 
-    private StockResponseDto buildStockDto(
+    private StockPriceUpdateDto buildPriceUpdateDto(
             String symbol
     ) throws Exception {
 
@@ -255,24 +256,11 @@ public class FinnhubWebSocketClient {
                                 symbol
                         );
 
-        Object instObj =
-                redisTemplate
-                        .opsForHash()
-                        .get(
-                                "instrument:cache",
-                                symbol
-                        );
-
-        if (
-                liveObj == null ||
-                        instObj == null
-        ) {
-
+        if(liveObj == null){
             throw new RuntimeException(
                     "Stock cache missing: "
                             + symbol
             );
-
         }
 
         JsonNode live =
@@ -280,39 +268,15 @@ public class FinnhubWebSocketClient {
                         liveObj.toString()
                 );
 
-        JsonNode inst =
-                objectMapper.readTree(
-                        instObj.toString()
-                );
-
-        return new StockResponseDto(
+        return new StockPriceUpdateDto(
 
                 symbol,
-
-                inst.path("name")
-                        .asText(),
-
-                inst.path("exchange")
-                        .asText(),
-
-                inst.path("currency")
-                        .asText(),
-
-                inst.path("industry")
-                        .asText(),
-
-                inst.path("logoUrl")
-                        .asText(),
-
-                inst.path("websiteUrl")
-                        .asText(),
 
                 live.path("price")
                         .asDouble(),
 
                 live.path("timestamp")
-                        .asLong(),
-                false
+                        .asLong()
 
         );
 
