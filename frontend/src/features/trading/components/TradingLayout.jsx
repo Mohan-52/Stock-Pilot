@@ -1,9 +1,17 @@
 import { Link, useLocation } from "react-router-dom";
-import { BarChart3, Briefcase, LayoutDashboard, Wallet } from "lucide-react";
+import {
+  Briefcase,
+  CalendarClock,
+  LayoutDashboard,
+  Star,
+  Wallet,
+} from "lucide-react";
 
 const navItems = [
   { to: "/dashboard", label: "Market", icon: LayoutDashboard },
+  { to: "/watchlist", label: "Watchlist", icon: Star },
   { to: "/portfolio", label: "Portfolio", icon: Briefcase },
+  { to: "/dashboard/sips", label: "SIPs", icon: CalendarClock },
   { to: "/wallet", label: "Wallet", icon: Wallet },
 ];
 
@@ -25,7 +33,7 @@ const TradingLayout = ({ children, actions, eyebrow, title, subtitle }) => {
           </span>
         </Link>
 
-        <nav className="grid grid-cols-3 gap-2 lg:mt-8 lg:grid-cols-1">
+        <nav className="grid grid-cols-5 gap-1 sm:gap-2 lg:mt-8 lg:grid-cols-1">
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = location.pathname === item.to;
@@ -41,7 +49,7 @@ const TradingLayout = ({ children, actions, eyebrow, title, subtitle }) => {
                 }`}
               >
                 <Icon className="h-4 w-4" aria-hidden="true" />
-                <span>{item.label}</span>
+                <span className="text-xs sm:text-sm">{item.label}</span>
               </Link>
             );
           })}

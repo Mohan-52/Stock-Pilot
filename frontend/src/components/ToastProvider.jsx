@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useState } from "react";
 
 const ToastContext = createContext(null);
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useToast = () => useContext(ToastContext);
 
 export const ToastProvider = ({ children }) => {

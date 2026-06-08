@@ -1,25 +1,22 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { registerUser, sendOTP, verifyOTP } from "../authAPI";
+import AuthShell from "../components/AuthShell";
 import EmailStep from "../components/EmailStep";
 import OTPVerificationStep from "../components/OTPVerificationStep";
 import PasswordStep from "../components/PasswordStep";
 import Toast from "../components/Toast";
 
 const RegisterPage = () => {
-  // Step states
-  const [currentStep, setCurrentStep] = useState("email"); // email, otp, password
+  const [currentStep, setCurrentStep] = useState("email");
   const [email, setEmail] = useState("");
   const [verifiedEmail, setVerifiedEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-
-  // Loading and error states
   const [isSendingOTP, setIsSendingOTP] = useState(false);
   const [isVerifyingOTP, setIsVerifyingOTP] = useState(false);
   const [isResendingOTP, setIsResendingOTP] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
-
-  // Toast state
   const [toast, setToast] = useState(null);
   const [emailError, setEmailError] = useState("");
   const [formErrors, setFormErrors] = useState({});
@@ -29,10 +26,7 @@ const RegisterPage = () => {
     setTimeout(() => setToast(null), 3000);
   };
 
-  const validateEmail = (emailValue) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(emailValue);
-  };
+  const validateEmail = (emailValue) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailValue);
 
   const handleSendOTP = async (emailValue) => {
     setEmailError("");
@@ -120,14 +114,8 @@ const RegisterPage = () => {
 
     setIsRegistering(true);
     try {
-      await registerUser({
-        email: verifiedEmail,
-        password,
-      });
-
+      await registerUser({ email: verifiedEmail, password });
       showToast("Account created successfully", "success");
-
-      // Reset form
       setCurrentStep("email");
       setEmail("");
       setVerifiedEmail("");
@@ -154,100 +142,105 @@ const RegisterPage = () => {
     }
   };
 
+  const stepIndex = currentStep === "email" ? 1 : currentStep === "otp" ? 2 : 3;
+
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 px-4">
-      <div className="bg-white p-8 rounded-2xl shadow-md w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-8 text-center">Create Account</h2>
-
-        {/* Progress indicator */}
-        <div className="flex justify-between mb-8">
-          <div
-            className={`flex items-center justify-center w-8 h-8 rounded-full ${
-              currentStep === "email"
-                ? "bg-black text-white"
-                : currentStep === "otp" || currentStep === "password"
-                  ? "bg-black text-white"
-                  : "bg-gray-300"
-            }`}
-          >
-            1
-          </div>
-          <div className="flex-1 h-1 mx-2 bg-gray-300 mt-4"></div>
-          <div
-            className={`flex items-center justify-center w-8 h-8 rounded-full ${
-              currentStep === "otp" || currentStep === "password"
-                ? "bg-black text-white"
-                : "bg-gray-300"
-            }`}
-          >
-            2
-          </div>
-          <div className="flex-1 h-1 mx-2 bg-gray-300 mt-4"></div>
-          <div
-            className={`flex items-center justify-center w-8 h-8 rounded-full ${
-              currentStep === "password" ? "bg-black text-white" : "bg-gray-300"
-            }`}
-          >
-            3
-          </div>
-        </div>
-
-        {/* Step content */}
-        {currentStep === "email" && (
-          <EmailStep
-            email={email}
-            onChange={setEmail}
-            onSendOTP={handleSendOTP}
-            isSending={isSendingOTP}
-            error={emailError}
-          />
-        )}
-
-        {currentStep === "otp" && (
-          <OTPVerificationStep
-            email={email}
-            onVerifySuccess={handleVerifyOTP}
-            onResend={handleResendOTP}
-            isVerifying={isVerifyingOTP}
-            isResending={isResendingOTP}
-          />
-        )}
-
-        {currentStep === "password" && (
-          <PasswordStep
-            password={password}
-            onPasswordChange={setPassword}
-            confirmPassword={confirmPassword}
-            onConfirmPasswordChange={setConfirmPassword}
-            onRegister={handleRegister}
-            isRegistering={isRegistering}
-            errors={formErrors}
-          />
-        )}
-
-        {/* Back button for otp and password steps */}
-        {currentStep !== "email" && (
-          <button
-            onClick={handleBack}
-            disabled={
-              isSendingOTP || isVerifyingOTP || isResendingOTP || isRegistering
-            }
-            className="w-full mt-4 text-center text-sm text-gray-600 hover:text-black disabled:opacity-50"
-          >
-            ← Back
-          </button>
-        )}
-
-        {/* Toast notification */}
-        {toast && (
-          <Toast
-            message={toast.message}
-            type={toast.type}
-            onClose={() => setToast(null)}
-          />
-        )}
+    <AuthShell
+      eyebrow="New account"
+      title="Create a Stock Pilot account."
+      subtitle="Verify your email, secure your profile, and start practicing trades in a professional simulator."
+    >
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300">
+          Create account
+        </p>
+        <h1 className="mt-3 text-2xl font-semibold text-white">
+          Join Stock Pilot
+        </h1>
+        <p className="mt-2 text-sm text-slate-400">
+          Complete the steps below to set up your account.
+        </p>
       </div>
-    </div>
+
+      <div className="my-8 flex items-center justify-between">
+        {[1, 2, 3].map((step) => (
+          <div key={step} className="contents">
+            <div
+              className={`flex h-9 w-9 items-center justify-center rounded-lg text-sm font-semibold ${
+                stepIndex >= step
+                  ? "bg-emerald-400 text-slate-950"
+                  : "bg-white/10 text-slate-400"
+              }`}
+            >
+              {step}
+            </div>
+            {step < 3 && <div className="mx-2 h-px flex-1 bg-white/10" />}
+          </div>
+        ))}
+      </div>
+
+      {currentStep === "email" && (
+        <EmailStep
+          email={email}
+          onChange={setEmail}
+          onSendOTP={handleSendOTP}
+          isSending={isSendingOTP}
+          error={emailError}
+        />
+      )}
+
+      {currentStep === "otp" && (
+        <OTPVerificationStep
+          email={email}
+          onVerifySuccess={handleVerifyOTP}
+          onResend={handleResendOTP}
+          isVerifying={isVerifyingOTP}
+          isResending={isResendingOTP}
+        />
+      )}
+
+      {currentStep === "password" && (
+        <PasswordStep
+          password={password}
+          onPasswordChange={setPassword}
+          confirmPassword={confirmPassword}
+          onConfirmPasswordChange={setConfirmPassword}
+          onRegister={handleRegister}
+          isRegistering={isRegistering}
+          errors={formErrors}
+        />
+      )}
+
+      {currentStep !== "email" && (
+        <button
+          onClick={handleBack}
+          disabled={
+            isSendingOTP || isVerifyingOTP || isResendingOTP || isRegistering
+          }
+          className="mt-4 w-full text-center text-sm font-semibold text-slate-400 transition hover:text-white disabled:opacity-50"
+        >
+          Back
+        </button>
+      )}
+
+      <p className="mt-6 text-center text-sm text-slate-400">
+        Already have an account?{" "}
+        <Link
+          to="/login"
+          className="font-semibold text-emerald-300 transition hover:text-emerald-200"
+        >
+          Sign in
+        </Link>
+      </p>
+
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
+    </AuthShell>
   );
 };
 

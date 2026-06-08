@@ -10,11 +10,10 @@ const OTPVerificationStep = ({
 }) => {
   const [otp, setOtp] = useState("");
   const [timeLeft, setTimeLeft] = useState(60);
-  const [canResend, setCanResend] = useState(false);
+  const canResend = timeLeft <= 0;
 
   useEffect(() => {
     if (timeLeft <= 0) {
-      setCanResend(true);
       return;
     }
 
@@ -28,7 +27,6 @@ const OTPVerificationStep = ({
   const handleResend = () => {
     setOtp("");
     setTimeLeft(60);
-    setCanResend(false);
     onResend();
   };
 
@@ -40,12 +38,12 @@ const OTPVerificationStep = ({
 
   return (
     <div className="w-full">
-      <h3 className="text-lg font-semibold mb-4 text-center">
+      <h3 className="mb-3 text-center text-lg font-semibold text-white">
         Verify Your Email
       </h3>
-      <p className="text-gray-600 text-sm text-center mb-6">
+      <p className="mb-6 text-center text-sm text-slate-400">
         We've sent a 6-digit OTP to{" "}
-        <span className="font-semibold">{email}</span>
+        <span className="font-semibold text-slate-200">{email}</span>
       </p>
 
       <OTPInput
@@ -58,24 +56,25 @@ const OTPVerificationStep = ({
       <button
         onClick={handleVerify}
         disabled={otp.length !== 6 || isVerifying}
-        className="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition mb-4"
+        className="mb-4 inline-flex min-h-12 w-full items-center justify-center rounded-lg bg-emerald-400 px-4 text-sm font-semibold text-slate-950 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {isVerifying ? "Verifying..." : "Verify OTP"}
       </button>
 
       <div className="text-center">
-        <p className="text-sm text-gray-600 mb-2">
+        <p className="mb-2 text-sm text-slate-400">
           {canResend ? (
             <button
               onClick={handleResend}
               disabled={isResending}
-              className="text-black font-semibold hover:underline disabled:opacity-50"
+              className="font-semibold text-emerald-300 transition hover:text-emerald-200 disabled:opacity-50"
             >
               {isResending ? "Sending..." : "Resend OTP"}
             </button>
           ) : (
             <>
-              Resend OTP in <span className="font-semibold">{timeLeft}s</span>
+              Resend OTP in{" "}
+              <span className="font-semibold text-slate-200">{timeLeft}s</span>
             </>
           )}
         </p>

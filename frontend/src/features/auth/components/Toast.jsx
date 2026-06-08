@@ -14,15 +14,15 @@ const Toast = ({ message, type = "success", onClose, duration = 3000 }) => {
 
   if (!isVisible) return null;
 
-  const bgColor = {
-    success: "bg-green-500",
-    error: "bg-red-500",
-    info: "bg-blue-500",
+  const toneClass = {
+    success: "bg-emerald-400 text-slate-950",
+    error: "bg-red-500 text-white",
+    info: "bg-sky-500 text-white",
   }[type];
 
   return (
     <div
-      className={`fixed top-4 right-4 px-6 py-3 rounded-lg ${bgColor} text-white shadow-lg z-50`}
+      className={`fixed right-4 top-4 z-50 rounded-lg px-5 py-3 text-sm font-semibold shadow-2xl ${toneClass}`}
       style={{
         animation: "slideIn 0.3s ease-in-out",
       }}

@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import apiClient, { getAccessToken, clearAuth } from "../services/apiClient";
 
 const UserContext = createContext(null);
@@ -8,7 +8,7 @@ export const UserProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const loadUser = async () => {
+  const loadUser = useCallback(async () => {
     const token = getAccessToken();
 
     if (!token) {
@@ -31,7 +31,7 @@ export const UserProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadUser();
@@ -44,20 +44,21 @@ export const UserProvider = ({ children }) => {
     return () => {
       window.removeEventListener("authTokenChanged", handleAuthChange);
     };
-  }, []);
+  }, [loadUser]);
 
-  const refreshUser = async () => {
+  const refreshUser = useCallback(async () => {
     await loadUser();
-  };
+  }, [loadUser]);
 
   const value = useMemo(
     () => ({ user, setUser, loading, error, refreshUser }),
-    [user, loading, error],
+    [user, loading, error, refreshUser],
   );
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useUser = () => {
   const context = useContext(UserContext);
   if (!context) {

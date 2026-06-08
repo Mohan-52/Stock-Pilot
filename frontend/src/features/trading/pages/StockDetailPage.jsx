@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, ShoppingCart } from "lucide-react";
 import apiClient from "../../../services/apiClient";
+import { useStockStore } from "../../../contexts/StockStoreContext";
 import BuyStockModal from "../components/BuyStockModal";
 import TradingLayout from "../components/TradingLayout";
-import { useLiveStockUpdates } from "../hooks/useLiveStockUpdates";
+import WatchlistButton from "../components/WatchlistButton";
 import { formatCurrency } from "../../../utils/formatters";
 
 const StockDetailPage = () => {
@@ -12,33 +13,13 @@ const StockDetailPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const stateStock = location.state?.stock;
+  const { stockMap, connectionStatus, hydrateStocks, setWatchlisted } =
+    useStockStore();
 
   const [stock, setStock] = useState(stateStock ?? null);
   const [isBuyOpen, setIsBuyOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(!stateStock);
   const [error, setError] = useState("");
-
-  const mergeLiveUpdate = useCallback(
-    (update) => {
-      if (!update?.symbol || update.symbol !== symbol) {
-        return;
-      }
-
-      setStock((previous) => ({
-        ...(previous ?? {}),
-        ...update,
-        previousPrice: previous?.price,
-        lastUpdatedAt: update.timestamp || Date.now(),
-      }));
-      console.debug("[stocks:detail] State updated", update.symbol);
-    },
-    [symbol],
-  );
-
-  const connectionStatus = useLiveStockUpdates({
-    enabled: Boolean(symbol),
-    onStockUpdate: mergeLiveUpdate,
-  });
 
   useEffect(() => {
     if (!symbol) {
@@ -47,6 +28,7 @@ const StockDetailPage = () => {
 
     if (stateStock) {
       setStock(stateStock);
+      hydrateStocks([stateStock]);
       setIsLoading(false);
       return;
     }
@@ -58,6 +40,7 @@ const StockDetailPage = () => {
       try {
         const response = await apiClient.get(`/stocks/${symbol}`);
         setStock(response.data);
+        hydrateStocks([response.data]);
       } catch (err) {
         setError(
           err.response?.data?.message ||
@@ -69,7 +52,9 @@ const StockDetailPage = () => {
     };
 
     fetchStock();
-  }, [symbol, stateStock]);
+  }, [hydrateStocks, symbol, stateStock]);
+
+  const currentStock = stockMap[symbol] ?? stock;
 
   if (!symbol) {
     return (
@@ -87,14 +72,23 @@ const StockDetailPage = () => {
   }
 
   const actions = (
-    <button
-      type="button"
-      onClick={() => setIsBuyOpen(true)}
-      className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-emerald-400 px-4 text-sm font-semibold text-slate-950 transition hover:bg-emerald-300"
-    >
-      <ShoppingCart className="h-4 w-4" aria-hidden="true" />
-      Buy {symbol.toUpperCase()}
-    </button>
+    <>
+      <WatchlistButton
+        symbol={stock?.symbol ?? symbol}
+        watchlisted={Boolean(currentStock?.watchlisted)}
+        onOptimisticChange={(_, nextValue) =>
+          setWatchlisted(currentStock?.symbol ?? symbol, nextValue)
+        }
+      />
+      <button
+        type="button"
+        onClick={() => setIsBuyOpen(true)}
+        className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-emerald-400 px-4 text-sm font-semibold text-slate-950 transition hover:bg-emerald-300"
+      >
+        <ShoppingCart className="h-4 w-4" aria-hidden="true" />
+        Buy {symbol.toUpperCase()}
+      </button>
+    </>
   );
 
   return (
@@ -141,10 +135,10 @@ const StockDetailPage = () => {
                   Symbol
                 </p>
                 <p className="mt-3 text-3xl font-semibold text-white">
-                  {stock.symbol}
+                  {currentStock.symbol}
                 </p>
                 <p className="mt-2 text-sm text-slate-400">
-                  {stock.name || "Stock details"}
+                  {currentStock.name || "Stock details"}
                 </p>
               </div>
               <div className="rounded-lg bg-white/[0.04] p-5">
@@ -152,8 +146,10 @@ const StockDetailPage = () => {
                   Current price
                 </p>
                 <p className="mt-3 text-3xl font-semibold text-emerald-300">
-                  {stock.currency || "USD"}{" "}
-                  {stock.price === undefined ? "N/A" : Number(stock.price).toFixed(2)}
+                  {currentStock.currency || "USD"}{" "}
+                  {currentStock.price === undefined
+                    ? "N/A"
+                    : Number(currentStock.price).toFixed(2)}
                 </p>
                 <p className="mt-2 text-sm capitalize text-slate-400">
                   WebSocket {connectionStatus}
@@ -164,7 +160,7 @@ const StockDetailPage = () => {
                   Exchange
                 </p>
                 <p className="mt-3 text-xl font-semibold text-white">
-                  {stock.exchange || "N/A"}
+                  {currentStock.exchange || "N/A"}
                 </p>
               </div>
             </div>
@@ -173,20 +169,20 @@ const StockDetailPage = () => {
               <div className="rounded-lg bg-white/[0.04] p-5">
                 <p className="text-sm text-slate-400">Industry</p>
                 <p className="mt-2 text-lg font-semibold text-white">
-                  {stock.industry || "N/A"}
+                  {currentStock.industry || "N/A"}
                 </p>
               </div>
               <div className="rounded-lg bg-white/[0.04] p-5">
                 <p className="text-sm text-slate-400">Market cap</p>
                 <p className="mt-2 text-lg font-semibold text-white">
-                  {stock.marketCap ? formatCurrency(stock.marketCap) : "N/A"}
+                  {currentStock.marketCap ? formatCurrency(currentStock.marketCap) : "N/A"}
                 </p>
               </div>
               <div className="rounded-lg bg-white/[0.04] p-5">
                 <p className="text-sm text-slate-400">Website</p>
-                {stock.websiteUrl ? (
+                {currentStock.websiteUrl ? (
                   <a
-                    href={stock.websiteUrl}
+                    href={currentStock.websiteUrl}
                     target="_blank"
                     rel="noreferrer"
                     className="mt-2 inline-flex break-all text-sm font-semibold text-emerald-300 hover:text-emerald-200"
@@ -201,10 +197,10 @@ const StockDetailPage = () => {
 
             <div className="rounded-lg bg-white/[0.04] p-5">
               <h2 className="text-xl font-semibold text-white">
-                About {stock.symbol}
+                About {currentStock.symbol}
               </h2>
               <p className="mt-4 text-sm leading-7 text-slate-300">
-                {stock.description ||
+                {currentStock.description ||
                   "No additional description is available for this stock."}
               </p>
             </div>

@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useRef } from "react";
 
 const OTPInput = ({ value, onChange, length = 6, disabled = false }) => {
   const inputRefs = useRef([]);
@@ -39,7 +39,7 @@ const OTPInput = ({ value, onChange, length = 6, disabled = false }) => {
   };
 
   return (
-    <div className="flex gap-2 justify-center mb-6">
+    <div className="mb-6 flex justify-center gap-2">
       {Array.from({ length }).map((_, index) => (
         <input
           key={index}
@@ -52,7 +52,7 @@ const OTPInput = ({ value, onChange, length = 6, disabled = false }) => {
           onKeyDown={(e) => handleKeyDown(index, e)}
           onPaste={handlePaste}
           disabled={disabled}
-          className="w-12 h-12 text-center text-xl font-bold border-2 border-gray-300 rounded-lg focus:border-black focus:outline-none disabled:bg-gray-100 disabled:cursor-not-allowed"
+          className="h-12 w-10 rounded-lg border border-white/10 bg-white/5 text-center text-xl font-bold text-white outline-none transition focus:border-emerald-300 disabled:cursor-not-allowed disabled:opacity-60 sm:w-12"
         />
       ))}
     </div>

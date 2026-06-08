@@ -18,7 +18,7 @@ try {
       "[stripe] Using a live publishable key (pk_live). Ensure this is intended.",
     );
   }
-} catch (e) {
+} catch {
   // ignore logging errors
 }
 

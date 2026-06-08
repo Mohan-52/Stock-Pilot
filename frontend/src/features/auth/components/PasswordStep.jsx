@@ -18,10 +18,10 @@ const PasswordStep = ({
 
   return (
     <div className="w-full">
-      <h3 className="text-lg font-semibold mb-4 text-center">
+      <h3 className="mb-3 text-center text-lg font-semibold text-white">
         Create Your Account
       </h3>
-      <p className="text-gray-600 text-sm text-center mb-6">
+      <p className="mb-6 text-center text-sm text-slate-400">
         Set a strong password to secure your account
       </p>
 
@@ -32,23 +32,23 @@ const PasswordStep = ({
           value={password}
           onChange={(e) => onPasswordChange(e.target.value)}
           disabled={isRegistering}
-          className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 pr-10 ${
+          className={`min-h-12 w-full rounded-lg border bg-white/5 px-3 pr-14 text-sm text-white outline-none transition placeholder:text-slate-500 disabled:cursor-not-allowed disabled:opacity-60 ${
             errors.password
-              ? "border-red-500 focus:ring-red-500"
-              : "border-gray-300 focus:ring-black"
-          } disabled:bg-gray-100`}
+              ? "border-red-400 focus:border-red-300"
+              : "border-white/10 focus:border-emerald-300"
+          }`}
         />
         <button
           type="button"
           onClick={() => setShowPassword(!showPassword)}
           disabled={isRegistering}
-          className="absolute right-3 top-3 text-gray-500 disabled:opacity-50"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-slate-400 transition hover:text-white disabled:opacity-50"
         >
           {showPassword ? "Hide" : "Show"}
         </button>
       </div>
       {errors.password && (
-        <p className="text-red-500 text-sm mb-4">{errors.password}</p>
+        <p className="mb-4 text-sm text-red-300">{errors.password}</p>
       )}
 
       <div className="relative mb-6">
@@ -58,33 +58,33 @@ const PasswordStep = ({
           value={confirmPassword}
           onChange={(e) => onConfirmPasswordChange(e.target.value)}
           disabled={isRegistering}
-          className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 pr-10 ${
+          className={`min-h-12 w-full rounded-lg border bg-white/5 px-3 pr-14 text-sm text-white outline-none transition placeholder:text-slate-500 disabled:cursor-not-allowed disabled:opacity-60 ${
             errors.confirmPassword
-              ? "border-red-500 focus:ring-red-500"
-              : "border-gray-300 focus:ring-black"
-          } disabled:bg-gray-100`}
+              ? "border-red-400 focus:border-red-300"
+              : "border-white/10 focus:border-emerald-300"
+          }`}
         />
         <button
           type="button"
           onClick={() => setShowConfirmPassword(!showConfirmPassword)}
           disabled={isRegistering}
-          className="absolute right-3 top-3 text-gray-500 disabled:opacity-50"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-slate-400 transition hover:text-white disabled:opacity-50"
         >
           {showConfirmPassword ? "Hide" : "Show"}
         </button>
       </div>
       {errors.confirmPassword && (
-        <p className="text-red-500 text-sm mb-4">{errors.confirmPassword}</p>
+        <p className="mb-4 text-sm text-red-300">{errors.confirmPassword}</p>
       )}
 
       {!passwordsMatch && password.length > 0 && (
-        <p className="text-red-500 text-sm mb-4">Passwords do not match</p>
+        <p className="mb-4 text-sm text-red-300">Passwords do not match</p>
       )}
 
       <button
         onClick={onRegister}
         disabled={!isFormValid || isRegistering}
-        className="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition"
+        className="inline-flex min-h-12 w-full items-center justify-center rounded-lg bg-emerald-400 px-4 text-sm font-semibold text-slate-950 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {isRegistering ? "Creating Account..." : "Create Account"}
       </button>

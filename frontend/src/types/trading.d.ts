@@ -9,6 +9,25 @@ export interface Position {
   pnlPercentage: number;
 }
 
+export interface Stock {
+  symbol: string;
+  name?: string;
+  exchange?: string;
+  currency?: string;
+  industry?: string;
+  logoUrl?: string;
+  websiteUrl?: string;
+  price?: number;
+  timestamp?: number;
+  watchlisted?: boolean;
+}
+
+export interface StockPriceUpdate {
+  symbol: string;
+  price: number;
+  timestamp: number;
+}
+
 export interface BuyOrderRequest {
   symbol: string;
   quantity: number;

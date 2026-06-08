@@ -104,8 +104,37 @@ const PortfolioTrades = () => {
 
       {data && data.content.length > 0 && !isLoading && (
         <>
-          <div className="overflow-x-auto">
-            <table className="min-w-[680px] w-full text-sm">
+          <div className="grid gap-3 md:hidden">
+            {data.content.map((trade) => (
+              <div
+                key={trade.id}
+                className="rounded-lg border border-white/10 bg-white/[0.04] p-4"
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <span
+                    className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${getTradeTypeColor(
+                      trade.type,
+                    )}`}
+                  >
+                    {getTradeTypeLabel(trade.type)}
+                  </span>
+                  <span className="text-sm font-semibold text-white">
+                    {trade.type === "BUY" ? "+" : "-"}
+                    {formatCurrency(trade.priceIncents)}
+                  </span>
+                </div>
+                <p className="mt-3 break-all text-xs text-slate-500">
+                  {trade.tradeId}
+                </p>
+                <p className="mt-2 text-sm text-slate-400">
+                  {formatDate(trade.executed)}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <div className="hidden md:block">
+            <table className="w-full text-sm">
               <thead className="border-b border-white/10 bg-white/[0.04]">
                 <tr>
                   <th className="px-4 py-3 text-left font-semibold text-slate-300">
