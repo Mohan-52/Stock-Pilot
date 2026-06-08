@@ -2,22 +2,26 @@ package com.mohan.stock_pilot.sip.repository;
 
 import com.mohan.stock_pilot.sip.dto.SipDto;
 import com.mohan.stock_pilot.sip.entity.Sip;
+import com.mohan.stock_pilot.sip.enums.SipStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 public interface SipRepository extends JpaRepository<Sip, UUID> {
-    boolean existsByUserIdAndInstrumentId(UUID userId, UUID instrumentId);
+    boolean existsByUserIdAndInstrumentIdAndStatusNot(UUID userId, UUID instrumentId, SipStatus status);
 
     @Query("""
     SELECT new com.mohan.stock_pilot.sip.dto.SipDto(
         s.id,
         s.instrumentId,
         i.symbol,
-        i.companyName,
+        i.name,
+        i.websiteUrl,
         s.amountPerCycle,
         s.frequency,
         s.nextExecutionDate,
@@ -31,4 +35,13 @@ public interface SipRepository extends JpaRepository<Sip, UUID> {
     Page<SipDto> findSipDtosByUserId(
             UUID userId,
             Pageable pageable
-    );}
+    );
+
+
+    List<Sip> findByStatusAndNextExecutionDateLessThanEqual(SipStatus status, Instant now);
+
+
+}
+
+
+

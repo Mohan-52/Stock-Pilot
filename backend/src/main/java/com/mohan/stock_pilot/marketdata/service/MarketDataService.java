@@ -105,7 +105,7 @@ public class MarketDataService {
 
                 InstrumentCacheDto dto =
                         new InstrumentCacheDto(
-
+                                inst.getId(),
                                 inst.getSymbol(),
 
                                 inst.getName(),

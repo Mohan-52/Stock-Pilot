@@ -1,7 +1,7 @@
 package com.mohan.stock_pilot.marketdata.dto;
 
 public record StockResponseDto(
-
+        String id,
         String symbol,
         String name,
         String exchange,

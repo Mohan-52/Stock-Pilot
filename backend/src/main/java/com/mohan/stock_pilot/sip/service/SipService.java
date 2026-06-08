@@ -44,7 +44,7 @@ public class SipService {
         }
 
 
-        if(sipRepo.existsByUserIdAndInstrumentId(userId,request.instrumentId())){
+        if(sipRepo.existsByUserIdAndInstrumentIdAndStatusNot(userId, request.instrumentId(), SipStatus.CANCELLED)){
             throw new ResourceAlreadyExistsEx("SIP already exists for this instrument");
         };
 
@@ -83,24 +83,6 @@ public class SipService {
         );
     }
 
-    private SipDto toSipDto(Sip sip) {
-
-        Instrument instrument = instrumentRepo
-                .findById(sip.getInstrumentId())
-                .orElseThrow(() -> new ResourceNotFoundEx(
-                        "Instrument not found"));
-
-        return new SipDto(
-                sip.getId(),
-                sip.getInstrumentId(),
-                instrument.getSymbol(),
-                instrument.getCompanyName(),
-                sip.getAmountPerCycle(),
-                sip.getFrequency(),
-                sip.getNextExecutionDate(),
-                sip.getStatus()
-        );
-    }
 
 
 
@@ -212,6 +194,11 @@ public class SipService {
 
     private Instant calculateNextExecutionDate(Instant currentExecutionDate, SipFrequency frequency) {
         return switch (frequency) {
+            case MINUTELY ->
+                    currentExecutionDate.plus(
+                            1,
+                            ChronoUnit.MINUTES
+                    );
             case DAILY -> currentExecutionDate.plus(1, ChronoUnit.DAYS);
 
             case WEEKLY -> currentExecutionDate.plus(7, ChronoUnit.DAYS);

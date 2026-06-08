@@ -11,6 +11,7 @@ public record SipDto(
         UUID instrumentId,
         String symbol,
         String companyName,
+        String websiteUrl,
         long amountPerCycle,
         SipFrequency frequency,
         Instant nextExecutionDate,

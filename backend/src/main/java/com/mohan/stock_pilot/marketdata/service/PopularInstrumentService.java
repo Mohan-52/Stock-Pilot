@@ -94,6 +94,9 @@ public class PopularInstrumentService {
 
                         new StockResponseDto(
 
+                                inst.path("id")
+                                                .asText(),
+
                                 symbols.get(i),
 
                                 inst.path("name")
