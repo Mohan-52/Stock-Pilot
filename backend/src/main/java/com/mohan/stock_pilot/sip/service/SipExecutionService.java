@@ -96,11 +96,10 @@ public class SipExecutionService {
     public void executeSip(UUID sipId) {
         Sip sip = getSip(sipId);
         long stockPrice = 0;
+        Instrument instrument= getInstrument(sip);
+
 
         try {
-
-            Instrument instrument = getInstrument(sip);
-
             stockPrice =
                     marketDataService.getPriceInCents(
                             instrument.getSymbol()
@@ -109,6 +108,8 @@ public class SipExecutionService {
             if (stockPrice <= 0) {
 
                 sipExecutionWriter.recordFailureAndAdvance(
+                        sip.getUserId(),
+                        instrument.getName(),
                         sip.getId(),
                         0,
                         "INVALID_STOCK_PRICE"
@@ -126,6 +127,8 @@ public class SipExecutionService {
             if (quantity <= 0) {
 
                 sipExecutionWriter.recordFailureAndAdvance(
+                        sip.getUserId(),
+                        instrument.getName(),
                         sip.getId(),
                         stockPrice,
                         "AMOUNT_PER_CYCLE_TOO_LOW"
@@ -143,6 +146,8 @@ public class SipExecutionService {
             );
 
             sipExecutionWriter.recordSuccessAndAdvance(
+                    sip.getUserId(),
+                    instrument.getName(),
                     sip.getId(),
                     stockPrice,
                     quantity,
@@ -152,11 +157,13 @@ public class SipExecutionService {
         }
         catch (InsufficientBalanceEx ex) {
 
-            sipExecutionWriter.recordFailureAndAdvance(
-                    sip.getId(),
-                    0,
-                    "INSUFFICIENT_FUNDS"
-            );
+                sipExecutionWriter.recordFailureAndAdvance(
+                        sip.getUserId(),
+                        instrument.getName(),
+                        sip.getId(),
+                        0,
+                        "INSUFFICIENT_FUNDS"
+                );
 
         }
         catch (ResourceNotFoundEx ex) {
@@ -168,6 +175,8 @@ public class SipExecutionService {
             );
 
             sipExecutionWriter.recordFailureAndAdvance(
+                    sip.getUserId(),
+                    instrument.getName(),
                     sip.getId(),
                     stockPrice,
                     ex.getMessage() != null &&
@@ -186,6 +195,8 @@ public class SipExecutionService {
             );
 
             sipExecutionWriter.recordFailureAndAdvance(
+                    sip.getUserId(),
+                    instrument.getName(),
                     sip.getId(),
                     stockPrice,
                     "ORDER_EXECUTION_FAILED"

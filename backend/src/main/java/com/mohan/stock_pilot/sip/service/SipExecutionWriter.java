@@ -1,6 +1,8 @@
 package com.mohan.stock_pilot.sip.service;
 
 import com.mohan.stock_pilot.common.exception.ResourceNotFoundEx;
+import com.mohan.stock_pilot.notification.enums.NotificationType;
+import com.mohan.stock_pilot.notification.service.NotificationService;
 import com.mohan.stock_pilot.sip.entity.Sip;
 import com.mohan.stock_pilot.sip.entity.SipExecution;
 import com.mohan.stock_pilot.sip.enums.SipExecutionStatus;
@@ -23,9 +25,12 @@ public class SipExecutionWriter {
 
     private final SipRepository sipRepo;
     private final SipExecutionRepository sipExecutionRepo;
+    private final NotificationService notificationService;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void recordSuccessAndAdvance(
+            UUID userId,
+            String instrumentName,
             UUID sipId,
             long stockPrice,
             long quantity,
@@ -45,10 +50,18 @@ public class SipExecutionWriter {
         );
 
         moveToNextCycle(sip);
+        notificationService.createNotification(
+                userId,
+                "SIP Executed",
+                    "Successfully invested $"+ investedAmount/100.0+ "in "+instrumentName,
+                NotificationType.SIP_SUCCESS
+        );
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void recordFailureAndAdvance(
+            UUID userId,
+            String instrumentName,
             UUID sipId,
             long stockPrice,
             String reason
@@ -68,6 +81,13 @@ public class SipExecutionWriter {
         );
 
         moveToNextCycle(sip);
+
+        notificationService.createNotification(
+                userId,
+                "SIP Failed",
+                reason,
+                NotificationType.SIP_FAILED
+        );
     }
 
     private Sip getSip(UUID sipId) {
