@@ -9,9 +9,9 @@
 ![Stripe](https://img.shields.io/badge/Stripe-Payments-635BFF?style=for-the-badge&logo=stripe&logoColor=white)
 ![Finnhub](https://img.shields.io/badge/Finnhub-Market%20Data-00A3FF?style=for-the-badge)
 
-Stock Pilot is a full-stack stock trading simulator for discovering market stocks, executing simulated buy and sell orders, managing a wallet, tracking portfolio performance, and receiving real-time price updates through WebSocket/STOMP streaming.
+Stock Pilot is a full-stack stock trading simulator for discovering market stocks, executing simulated buy and sell orders, managing a wallet, tracking portfolio performance, creating SIP-style recurring investments, and receiving real-time price updates through WebSocket/STOMP streaming.
 
-The project is built as a production-style trading platform with a Spring Boot backend, a React frontend, PostgreSQL persistence, Redis market-data caching, Flyway migrations, JWT-based security, Stripe wallet deposits, Cloudinary profile image storage, and Finnhub-powered market data.
+The project is built as a production-style trading platform with a Spring Boot backend, a React frontend, PostgreSQL persistence, Redis market-data caching, Flyway migrations, JWT-based security, Stripe wallet deposits, Cloudinary profile image storage, Finnhub-powered market data, and in-app notifications for trading and portfolio events.
 
 Repository: [github.com/Mohan-52/stock-pilot](https://github.com/Mohan-52/stock-pilot)
 
@@ -52,12 +52,39 @@ Stock Pilot follows a layered Spring Boot architecture:
 - 📈 Real-time stock prices using Finnhub and WebSocket/STOMP
 - 🔎 Stock discovery and Top 50 market stock listings
 - 🧾 Simulated buy and sell order execution
-- 📊 Portfolio summary, position tracking, and P/L monitoring
+- � SIP-style recurring investment plans for automated periodic purchases
+- 🔔 Notification features for order status, portfolio updates, price alerts, and system messages
+- �📊 Portfolio summary, position tracking, and P/L monitoring
 - 🕒 Order and trade history
 - ⭐ Watchlist-ready trading dashboard experience
 - ⚡ Redis-backed market-data caching
 - 📱 Responsive dark trading dashboard for desktop, tablet, and mobile
 - 🐳 Docker Compose setup for PostgreSQL and Redis
+
+## SIP Investing
+
+- Users can create SIPs for stocks with configurable allocation and schedule.
+- Supported frequencies: Daily, Weekly, Monthly, and Minutely for demo/testing.
+- Users can update, pause, resume, and cancel SIPs.
+- A scheduler automatically checks for due SIPs and executes them.
+- SIP executions create execution history records.
+- Failed executions are tracked with failure reasons.
+- Next execution dates are automatically calculated and updated.
+
+## SIP Scheduler
+
+- Built using Spring Scheduler (`@Scheduled`).
+- Runs periodically and finds all due active SIPs.
+- Executes SIPs automatically without user intervention.
+- Handles execution failures gracefully and advances to the next cycle.
+
+## Notifications
+
+- In-app notification system with database persistence.
+- Real-time notification delivery using WebSockets (STOMP + SockJS).
+- Notifications generated for SIP success and SIP failure events.
+- Supports unread count, mark-as-read, and mark-all-as-read functionality.
+- Notification history is stored and can be retrieved through REST APIs.
 
 ## Technology Stack
 
