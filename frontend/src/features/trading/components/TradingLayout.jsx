@@ -6,6 +6,7 @@ import {
   Star,
   Wallet,
 } from "lucide-react";
+import NotificationBell from "../../notifications/components/NotificationBell";
 
 const navItems = [
   { to: "/dashboard", label: "Market", icon: LayoutDashboard },
@@ -74,7 +75,10 @@ const TradingLayout = ({ children, actions, eyebrow, title, subtitle }) => {
                 </p>
               )}
             </div>
-            {actions && <div className="flex flex-wrap gap-3">{actions}</div>}
+            <div className="flex flex-wrap items-center gap-3">
+              <NotificationBell />
+              {actions}
+            </div>
           </div>
         </header>
 
