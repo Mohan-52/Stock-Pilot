@@ -2,6 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import {
   Briefcase,
   CalendarClock,
+  FileText,
   LayoutDashboard,
   Star,
   Wallet,
@@ -14,6 +15,7 @@ const navItems = [
   { to: "/portfolio", label: "Portfolio", icon: Briefcase },
   { to: "/dashboard/sips", label: "SIPs", icon: CalendarClock },
   { to: "/wallet", label: "Wallet", icon: Wallet },
+  { to: "/reports", label: "Reports", icon: FileText },
 ];
 
 const TradingLayout = ({ children, actions, eyebrow, title, subtitle }) => {

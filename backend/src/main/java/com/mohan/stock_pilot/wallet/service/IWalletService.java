@@ -10,6 +10,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -20,4 +22,5 @@ public interface IWalletService {
     void debitWallet(DebitRequestDto requestDto);
     void creditWallet(UUID userId, long amount);
     WalletTxnResponseDto getWalletTransaction(UUID userId, Pageable pageable);
+    List<WalletTransaction> getWalletTxnCustom(UUID userId, Instant start, Instant end);
 }

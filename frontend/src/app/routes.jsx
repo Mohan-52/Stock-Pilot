@@ -10,6 +10,7 @@ import PortfolioPositionsPage from "../features/trading/pages/PortfolioPositions
 import StockDetailPage from "../features/trading/pages/StockDetailPage";
 import WatchlistPage from "../features/trading/pages/WatchlistPage";
 import SipsPage from "../features/sips/pages/SipsPage";
+import ReportsPage from "../features/reports/pages/ReportsPage";
 
 const AppRoutes = () => {
   return (
@@ -26,6 +27,7 @@ const AppRoutes = () => {
         <Route path="/watchlist" element={<WatchlistPage />} />
         <Route path="/wallet" element={<WalletPage />} />
         <Route path="/portfolio" element={<PortfolioPositionsPage />} />
+        <Route path="/reports" element={<ReportsPage />} />
         <Route path="/stocks/:symbol" element={<StockDetailPage />} />
       </Routes>
     </BrowserRouter>

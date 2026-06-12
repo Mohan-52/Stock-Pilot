@@ -44,7 +44,7 @@ public class PortfolioService {
             long pnl=currentValue-invested;
 
 
-            double pnlPercentage = invested == 0 ? 0 : ((double) pnl / invested) * 100;
+            double pnlPercentage = invested == 0 ? 0 : round(((double) pnl / invested) * 100);
 
             totalInvested+=invested;
             totalCurrentValue+=currentValue;
@@ -167,5 +167,9 @@ public class PortfolioService {
                 positionPage.getTotalPages(),
                 positionPage.isLast()
         );
+    }
+
+    private double round(double value){
+        return Math.round(value * 100.0)/100.0;
     }
 }

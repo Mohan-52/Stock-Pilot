@@ -153,7 +153,10 @@ const PortfolioTrades = () => {
               </thead>
               <tbody className="divide-y divide-white/10">
                 {data.content.map((trade) => (
-                  <tr key={trade.id} className="transition hover:bg-white/[0.04]">
+                  <tr
+                    key={trade.id}
+                    className="transition hover:bg-white/[0.04]"
+                  >
                     <td className="px-4 py-4">
                       <span
                         className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${getTradeTypeColor(

@@ -21,6 +21,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -145,6 +146,12 @@ public class WalletServiceImpl implements IWalletService {
                page.getTotalPages(),
                page.isLast());
        return responseDto;
+    }
+
+    @Override
+    public List<WalletTransaction> getWalletTxnCustom(UUID userId, Instant start, Instant end){
+        Wallet wallet=getWallet(userId);
+        return txnRepo.findByWalletIdAndCreatedAtBetweenOrderByCreatedAtAsc(wallet.getId(), start, end);
     }
 
 
