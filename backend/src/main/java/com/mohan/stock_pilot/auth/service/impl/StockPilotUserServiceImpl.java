@@ -103,5 +103,32 @@ public class StockPilotUserServiceImpl implements IStockPilotUserService{
         userRepository.save(user);
     }
 
+    @Override
+    public AccessTokenResponse refreshAccessToken(
+            String refreshToken) {
+
+        if (!jwtUtil.isRefreshTokenValid(refreshToken)) {
+
+            throw new InvalidCredentialsEx(
+                    "Invalid refresh token");
+        }
+
+        String email =
+                jwtUtil.extractEmailFromRefreshToken(
+                        refreshToken);
+
+        StockPilotUser user =
+                userRepository.findByEmail(email)
+                        .orElseThrow(
+                                () -> new ResourceNotFoundEx(
+                                        "User not found"));
+
+        String accessToken =
+                jwtUtil.generateAccessToken(user);
+
+        return new AccessTokenResponse(
+                accessToken);
+    }
+
 
 }

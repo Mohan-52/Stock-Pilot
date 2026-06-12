@@ -62,4 +62,9 @@ public class StockPilotUserController {
 
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/auth/refresh")
+    public ResponseEntity<AccessTokenResponse> refreshAccessToken(@CookieValue("refreshToken") String refreshToken){
+        return ResponseEntity.ok(userService.refreshAccessToken(refreshToken));
+    }
 }

@@ -1,6 +1,5 @@
 package com.mohan.stock_pilot.security;
 
-import com.mohan.stock_pilot.auth.entity.Roles;
 import com.mohan.stock_pilot.auth.entity.StockPilotUser;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
-import java.security.Key;
 import java.util.Date;
 
 @Component
@@ -73,6 +71,34 @@ public class JwtUtil {
     public boolean isTokenValid(String token, UserDetails userDetails) {
         String email = extractEmail(token);
         return email.equals(userDetails.getUsername());
+    }
+
+    private Claims extractClaimsFromRefreshToken(String token){
+        return Jwts.parser()
+                .verifyWith(getSigningKey(REFRESH_TOKEN_SECRET))
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+    }
+
+
+    public String extractEmailFromRefreshToken(String token){
+        return extractClaimsFromRefreshToken(token)
+                .getSubject();
+    }
+
+    public boolean isRefreshTokenValid(String token) {
+
+        try {
+
+            extractClaimsFromRefreshToken(token);
+
+            return true;
+
+        } catch (Exception ex) {
+
+            return false;
+        }
     }
 
 }
